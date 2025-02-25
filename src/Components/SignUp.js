@@ -8,6 +8,7 @@ const SignUp = () => {
   const [email, setEmail] = useState("");
   const [adminCode, setAdminCode] = useState(""); // New State for Admin Code
   const navigate = useNavigate();
+  const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:6060";
 
   useEffect(() => {
     const auth = localStorage.getItem("user");
@@ -29,7 +30,7 @@ const SignUp = () => {
       return;
     }
 
-    let result = await fetch("http://localhost:6060/register", {
+    let result = await fetch(`${API_BASE_URL}/register`, {
       method: "POST",
       body: JSON.stringify({ name, email, password }),
       headers: {

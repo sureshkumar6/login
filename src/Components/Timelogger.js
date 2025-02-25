@@ -10,6 +10,7 @@ const Timelogger = () => {
   const [comment, setComment] = useState("");
   const [logs, setLogs] = useState([]);
   const [selectedDate, setSelectedDate] = useState("");
+  const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:6060";
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
@@ -26,7 +27,7 @@ const Timelogger = () => {
 
   const fetchLogs = async () => {
     try {
-      const response = await axios.get("http://localhost:6060/logs", {
+      const response = await axios.get(`${API_BASE_URL}/logs`, {
         params: { employeeName },
       });
       setLogs(response.data);
@@ -40,12 +41,12 @@ const Timelogger = () => {
       alert("Please provide Log Time and select a Date.");
       return;
     }
-
+  
     const storedUser = JSON.parse(localStorage.getItem("user"));
-
+  
     try {
       await axios.post(
-        "http://localhost:6060/logs",
+        `${API_BASE_URL}/logs`,
         {
           date: selectedDate,
           [logType]: logTime,
@@ -57,7 +58,7 @@ const Timelogger = () => {
           },
         }
       );
-
+  
       alert("Time log submitted successfully!");
       fetchLogs();
     } catch (error) {

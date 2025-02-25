@@ -1,9 +1,4 @@
-/*!
- * Bootstrap v4.3.1 (https://getbootstrap.com/)
- * Copyright 2011-2019 The Bootstrap Authors
- * Copyright 2011-2019 Twitter, Inc.
- * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
- */
+
  :root {
     --blue: #007bff;
     --indigo: #6610f2;
@@ -8246,8 +8241,6 @@
     .btn.btn-outline-primary {
       color: #fff; }
   
-      <!-- HTML !-->
-<button class="button-37" role="button">Button 37</button>
 
 /* CSS */
 .submitButton {

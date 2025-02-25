@@ -6,6 +6,8 @@ const Login = () => {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const navigate = useNavigate();
+  const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:6060";
+
 
   useEffect(() => {
     const auth = localStorage.getItem("user");
@@ -23,7 +25,7 @@ const Login = () => {
     }
 
     console.log(email, password);
-    let result = await fetch("http://localhost:6060/login", {
+    let result = await fetch(`${API_BASE_URL}/login`, {
       method: "POST",
       body: JSON.stringify({ email, password }),
       headers: {
