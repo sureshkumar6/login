@@ -1,0 +1,133 @@
+.login { 
+    background: url('file:///s:/Medal/React/login/public/login-register.jpg') no-repeat center center fixed;
+    background-size: cover;
+    height: 100vh;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth-box {
+    background: #fff;
+    padding: 20px;
+    box-shadow: 1px 0 20px rgba(0, 0, 0, 0.08);
+    max-width: 400px;
+    width: 90%;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.logo {
+    text-align: center;
+}
+
+.logo img {
+    max-width: 180px; /* Increased logo size */
+    height: 50px
+}
+
+.logo h5 {
+    margin-bottom: 50px; /* Added space after h5 */
+    font-size: 18px;
+}
+
+.loginsys {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: -10px;
+    margin-left: -10px;
+}
+
+.col-12 {
+    flex: 0 0 100%;
+    max-width: 100%;
+}
+
+.loginform {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.inputBox {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    background-color: #f9f9f9;
+}
+
+.inputBox input {
+    border: none;
+    outline: none;
+    flex: 1;
+    padding: 10px;
+    background: transparent;
+    font-size: 16px;
+}
+
+.inputBox i {
+    padding: 10px;
+    color: #777;
+}
+
+.mb-3 {
+    margin-bottom: 1rem !important;
+}
+
+.LoginBtn {
+    text-align: center;
+    background-color: #4fc3f7;
+    border-color: #4fc3f7;
+    color: white;
+    font-size: 18px;
+    width: 90%; /* Increased width */
+    padding: 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+}
+
+.LoginBtn:hover {
+    background-color: #039be5;
+}
+
+.signup .auth-box {
+    background-color: #f3f3f3;
+  }
+
+
+  .register-link {
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+.register-btn {
+    color: #4fc3f7;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.register-btn:hover {
+    text-decoration: underline;
+}
+
+.register-link {
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+.register-btn {
+    color: #4fc3f7;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.register-btn:hover {
+    text-decoration: underline;
+}
