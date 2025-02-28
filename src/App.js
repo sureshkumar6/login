@@ -5,6 +5,7 @@ import SignUp from "./Components/SignUp.js";
 import PrivateComponent from "./Components/PrivateComponent.js";
 import Timelogger from "./Components/Timelogger.js";
 import Salary from "./Components/Salary.js";
+import Profile from "./Components/Profile.js";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
           <Route element={<PrivateComponent />}>
             <Route path="/" element={<Timelogger />} />
             <Route path="/salary" element={<Salary />} />
+            <Route path="/profile" element={<Profile />} />
           </Route>
 
           {/* Public Routes */}

@@ -18,18 +18,18 @@ const SignUp = () => {
   }, []);
 
   const collectData = async (e) => {
-    e.preventDefault(); // Prevent form refresh
-
+    e.preventDefault();
+  
     if (!name || !email || !password || !adminCode) {
       alert("Please fill in all fields");
       return;
     }
-
+  
     if (adminCode !== "888888") {
       alert("Incorrect Admin Code! Please enter the correct Admin Code.");
       return;
     }
-
+  
     let result = await fetch(`${API_BASE_URL}/register`, {
       method: "POST",
       body: JSON.stringify({ name, email, password }),
@@ -37,16 +37,27 @@ const SignUp = () => {
         "Content-Type": "application/json",
       },
     });
-
+  
     result = await result.json();
-
+  
     if (result.error) {
-      alert(result.error); // Show alert if email is already taken
+      alert(result.error);
     } else {
-      localStorage.setItem("user", JSON.stringify(result));
+      const userData = {
+        name,
+        email,
+        employeeId: result.employeeId,
+      };
+  
+      // Store the full user details
+      localStorage.setItem("user", JSON.stringify(userData));
+      localStorage.setItem("employeeId", result.employeeId); 
+  
       navigate("/");
     }
   };
+  
+  
 
   return (
     <div className="login center-content">

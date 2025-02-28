@@ -4,25 +4,44 @@ import "./Navbar.css"; // Ensure you have this file for styling
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const user = localStorage.getItem("user"); // Check if user is logged in
+
+  // Safely parse user data
+  let storedData = null;
+  try {
+    storedData = JSON.parse(localStorage.getItem("user")) || null;
+  } catch (error) {
+    console.error("Error parsing localStorage data:", error);
+  }
 
   const handleLogout = () => {
-    localStorage.removeItem("user"); // Remove user from local storage
+    localStorage.removeItem("user");       // Remove user data
+    localStorage.removeItem("employeeId"); // Remove employeeId if stored separately
     navigate("/login"); // Redirect to login page
   };
 
   return (
     <nav className="navbar">
       <div className="navbar-left">
-        <img src="/logo.png" alt="Company Logo" className="logo" />
+        <img 
+          src="/logo.png" 
+          alt="Company Logo" 
+          className="logo" 
+          onClick={() => navigate("/")}
+          style={{ cursor: "pointer" }} // Ensure logo is clickable
+        />
       </div>
+
       <div className="navbar-right">
-        <button className="logout-button" onClick={() => navigate("/")}>Home</button>
-        <button className="logout-button" onClick={() => navigate("/salary")}>Salary</button>
-        {user ? (
-          <button className="logout-button" onClick={handleLogout}>Logout</button>
+        <button className="nav-button" onClick={() => navigate("/")} aria-label="Home">Home</button>
+        <button className="nav-button" onClick={() => navigate("/salary")} aria-label="Salary">Salary</button>
+
+        {storedData ? (
+          <>
+            <button className="nav-button" onClick={() => navigate("/profile")} aria-label="Profile">Profile</button>
+            <button className="nav-button logout-button" onClick={handleLogout} aria-label="Logout">Logout</button>
+          </>
         ) : (
-          <button className="logout-button" onClick={() => navigate("/login")}>Login</button>
+          <button className="nav-button" onClick={() => navigate("/login")} aria-label="Login">Login</button>
         )}
       </div>
     </nav>

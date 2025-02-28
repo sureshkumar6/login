@@ -1,13 +1,12 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
 
 const Login = () => {
-  const [email, setEmail] = React.useState("");
-  const [password, setPassword] = React.useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:6060";
-
 
   useEffect(() => {
     const auth = localStorage.getItem("user");
@@ -17,27 +16,39 @@ const Login = () => {
   }, []);
 
   const handleLogin = async (e) => {
-    e.preventDefault(); // Prevent default form submission
+    e.preventDefault();
 
     if (!email || !password) {
       alert("Please fill in all fields");
       return;
     }
 
-    console.log(email, password);
-    let result = await fetch(`${API_BASE_URL}/login`, {
-      method: "POST",
-      body: JSON.stringify({ email, password }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    result = await result.json();
-    if (result.name) {
-      localStorage.setItem("user", JSON.stringify(result));
-      navigate("/");
-    } else {
-      alert("Please enter correct details");
+    try {
+      const response = await fetch(`${API_BASE_URL}/login`, {
+        method: "POST",
+        body: JSON.stringify({ email, password }),
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const result = await response.json();
+
+      if (result.employeeId) {
+        const userData = {
+          name: result.name,
+          email: result.email,
+          employeeId: result.employeeId,
+        };
+
+        localStorage.setItem("user", JSON.stringify(userData));
+        localStorage.setItem("employeeId", result.employeeId);
+
+        navigate("/");
+      } else {
+        alert("Invalid email or password");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      alert("Something went wrong. Please try again.");
     }
   };
 
