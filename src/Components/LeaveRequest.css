@@ -1,0 +1,45 @@
+.leave-request {
+    max-width: 500px;
+    margin: auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .leave-request h2 {
+    text-align: center;
+    margin-bottom: 15px;
+  }
+  
+  .leave-request label {
+    font-weight: bold;
+    display: block;
+    margin-top: 10px;
+  }
+  
+  .leave-request input, 
+  .leave-request select, 
+  .leave-request textarea {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  .leave-request button {
+    margin-top: 15px;
+    width: 100%;
+    padding: 10px;
+    background: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  
+  .leave-request button:hover {
+    background: #0056b3;
+  }
+  

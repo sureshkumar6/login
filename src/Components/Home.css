@@ -1,0 +1,43 @@
+.home-container {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+  }
+  
+  .shloka-box {
+    background: #f4f4f4;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 20px 0;
+  }
+  
+  .status-section {
+    background: #e3f2fd;
+    padding: 15px;
+    border-radius: 8px;
+  }
+  
+  .employee-status {
+    padding: 8px;
+    margin: 5px 0;
+    border-radius: 4px;
+  }
+  
+  .employee-status.working {
+    background: #d4edda;
+  }
+  
+  .employee-status.logged-out {
+    background: #f8d7da;
+  }
+  
+  .announcements {
+    background: #fff3cd;
+    padding: 15px;
+    border-radius: 8px;
+  }
+  
+  .announcement-item {
+    border-bottom: 1px solid #ccc;
+    padding: 10px 0;
+  }
+  

@@ -84,7 +84,7 @@ const SignUp = () => {
                 <div className="inputBox mb-3">
                   <i className="fas fa-envelope"></i>
                   <input
-                    type="email"
+                    // type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Enter Email"
@@ -107,7 +107,7 @@ const SignUp = () => {
                 <div className="inputBox mb-3">
                   <i className="fas fa-lock"></i>
                   <input
-                    type="text"
+                    type="password"
                     value={adminCode}
                     onChange={(e) => setAdminCode(e.target.value)}
                     placeholder="Enter Admin Code"

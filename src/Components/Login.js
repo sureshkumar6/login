@@ -67,7 +67,7 @@ const Login = () => {
                 <div className="inputBox mb-3">
                   <i className="fas fa-envelope"></i>
                   <input
-                    type="email"
+                    // type="email"
                     placeholder="Enter Email"
                     onChange={(e) => setEmail(e.target.value)}
                     value={email}

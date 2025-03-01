@@ -4,6 +4,9 @@ import cors from "cors";
 import Timelog from "./db/timelog.js"; // Import your model
 import usersModel from "./db/user.js";
 import EmployeeDetails from "./db/employeeDetails.js";
+import DailyActivity from "./db/dailyActivity.js";
+import LeaveRequest from "./db/LeaveRequestModel.js";
+import Announcement from "./db/AnnouncementModel.js";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -13,14 +16,14 @@ app.use(express.json());
 app.use(cors());
 
 // 🔹 Connect to MongoDBcoMPASS
-// mongoose.connect("mongodb://127.0.0.1:27017/timelogger", {
-//   useNewUrlParser: true,
-//   useUnifiedTopology: true,
-// });
-
-mongoose.connect(process.env.MONGO_URI, {
-  authSource: "admin"
+mongoose.connect("mongodb://127.0.0.1:27017/timelogger", {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
 });
+
+// mongoose.connect(process.env.MONGO_URI, {
+//   authSource: "admin"
+// });
 
 
 // 🔹 Get logs by employeeName
@@ -180,19 +183,12 @@ app.post("/register", async (req, res) => {
     let lastEmployeeId = lastEmployee ? parseInt(lastEmployee.employeeId.replace("EMP", ""), 10) : 1000;
     const employeeId = `EMP${lastEmployeeId + 1}`;
 
-    // Save User
+    // Save User (Storing password in plain text)
     const user = new usersModel({ name, email, password, employeeId });
     await user.save();
 
     // Save Employee Details
-    const employeeDetails = new EmployeeDetails({
-      employeeId,
-      name,
-      email,
-      dob: "",
-      gender: "",
-      maritalStatus: "",
-    });
+    const employeeDetails = new EmployeeDetails({ employeeId, name, email, dob: "", gender: "", maritalStatus: "" });
     await employeeDetails.save();
 
     res.json({ message: "User registered successfully!", name, email, employeeId });
@@ -202,16 +198,12 @@ app.post("/register", async (req, res) => {
   }
 });
 
-
-
-
-  
 app.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await usersModel.findOne({ email, password }).select("-password");
+    const user = await usersModel.findOne({ email });
 
-    if (!user) {
+    if (!user || user.password !== password) {
       return res.status(400).json({ error: "Invalid email or password" });
     }
 
@@ -221,6 +213,33 @@ app.post("/login", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
+app.put("/change-password", async (req, res) => {
+  try {
+    const { email, oldPassword, newPassword } = req.body;
+    if (!email || !oldPassword || !newPassword) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+
+    const user = await usersModel.findOne({ email });
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    if (user.password !== oldPassword) {
+      return res.status(400).json({ error: "Incorrect old password" });
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    res.json({ success: true, message: "Password updated successfully!" });
+  } catch (error) {
+    console.error("Error changing password:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+
+
 
 app.get("/employee-details", async (req, res) => {
   try {
@@ -263,6 +282,138 @@ app.put("/employee-details", async (req, res) => {
   } catch (error) {
     console.error("Error updating employee details:", error);
     res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.post("/daily-activity", async (req, res) => {
+  try {
+    const { email, date, work, subWorkType, sheekLink, startTime } = req.body;
+
+    // Validate required fields (endTime is optional)
+    if (!email || !date || !work || !subWorkType || !sheekLink || !startTime) {
+      return res.status(400).json({ error: "All fields except End Time are required" });
+    }
+
+    // Save the activity without an endTime initially
+    const activity = new DailyActivity({ email, date, work, subWorkType, sheekLink, startTime, endTime: null });
+    await activity.save();
+
+    res.json({ message: "Start time saved successfully!", activity });
+  } catch (error) {
+    console.error("Error saving activity:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Update only the end time for an existing activity
+app.put("/daily-activity/update-end-time", async (req, res) => {
+  try {
+    const { email, date, endTime } = req.body;
+    if (!email || !date || !endTime) {
+      return res.status(400).json({ error: "Email, Date, and End Time are required" });
+    }
+
+    const updatedActivity = await DailyActivity.findOneAndUpdate(
+      { email, date, endTime: null }, // Find entry without an end time
+      { $set: { endTime } }, // Update endTime
+      { new: true }
+    );
+
+    if (!updatedActivity) {
+      return res.status(404).json({ error: "No matching record found to update" });
+    }
+
+    res.json({ message: "End time updated successfully!", updatedActivity });
+  } catch (error) {
+    console.error("Error updating end time:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+
+app.get("/daily-activity", async (req, res) => {
+  try {
+    const { email } = req.query;
+    if (!email) {
+      return res.status(400).json({ error: "Email is required" });
+    }
+
+    // Retrieve activities sorted by date
+    const activities = await DailyActivity.find({ email }).sort({ date: -1 });
+    res.json(activities);
+  } catch (error) {
+    console.error("Error fetching activities:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+
+app.post("/leave-requests", async (req, res) => {
+  try {
+    const newLeaveRequest = new LeaveRequest(req.body);
+    const savedRequest = await newLeaveRequest.save();
+    res.status(201).json(savedRequest); // Return the newly created leave request
+  } catch (error) {
+    res.status(500).json({ message: "Error creating leave request" });
+  }
+});
+app.get("/leave-requests", async (req, res) => {
+  const { email } = req.query; // Get email from request query
+
+  if (!email) {
+    return res.status(400).json({ error: "Email is required to fetch leave requests" });
+  }
+
+  try {
+    const leaveRequests = await LeaveRequest.find({ email }).sort({ requestDate: -1 });
+    res.status(200).json(leaveRequests);
+  } catch (error) {
+    console.error("Error fetching leave requests:", error);
+    res.status(500).json({ error: "Failed to fetch leave requests." });
+  }
+});
+
+
+
+// 👉 API to delete a leave request
+app.delete("/leave-requests/:id", async (req, res) => {
+  try {
+    await LeaveRequest.findByIdAndDelete(req.params.id);
+    res.status(200).json({ message: "Leave request deleted successfully!" });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to delete leave request." });
+  }
+});
+
+// 👉 API to update leave request status (for Super Admin)
+app.patch("/leave-requests/:id", async (req, res) => {
+  try {
+    const { status } = req.body;
+    await LeaveRequest.findByIdAndUpdate(req.params.id, { status });
+    res.status(200).json({ message: "Leave request status updated!" });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to update status." });
+  }
+});
+
+// Fetch Announcements
+app.get("/announcements", async (req, res) => {
+  try {
+    const announcements = await Announcement.find().sort({ date: -1 });
+    res.json(announcements);
+  } catch (error) {
+    res.status(500).json({ error: "Error fetching announcements" });
+  }
+});
+
+// Add a new Announcement
+app.post("/announcements", async (req, res) => {
+  try {
+    const newAnnouncement = new Announcement(req.body);
+    await newAnnouncement.save();
+    res.status(201).json({ message: "Announcement added!" });
+  } catch (error) {
+    res.status(500).json({ error: "Error adding announcement" });
   }
 });
 

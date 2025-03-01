@@ -1,22 +1,29 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import './Profile.css';
+import "./Profile.css";
 
 const Profile = () => {
   const user = JSON.parse(localStorage.getItem("user"));
   const [employeeDetails, setEmployeeDetails] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [isChangingPassword, setIsChangingPassword] = useState(false); // Track password change state
   const [editedDetails, setEditedDetails] = useState({
     dob: "",
     gender: "",
     maritalStatus: "",
   });
+  const [passwordDetails, setPasswordDetails] = useState({
+    oldPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
   const email = user?.email;
-  const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:6060";
+  const API_BASE_URL = "http://localhost:6060";
 
   useEffect(() => {
-    if (user && !employeeDetails) {  // Only set details if they haven't been set already
-      axios.get(`${API_BASE_URL}/employee-details?email=${user.email}`)
+    if (user && !employeeDetails) {
+      axios
+        .get(`${API_BASE_URL}/employee-details?email=${user.email}`)
         .then((response) => {
           if (response.data) {
             setEmployeeDetails(response.data);
@@ -27,18 +34,17 @@ const Profile = () => {
             });
           }
         })
-        .catch(error => console.error("Error fetching employee details:", error));
+        .catch((error) => console.error("Error fetching employee details:", error));
     }
-  }, [user, API_BASE_URL, employeeDetails]);  // Add employeeDetails as dependency to prevent overwriting
-  
-  
-  
+  }, [user, employeeDetails]);
+
   if (!email) {
     console.error("User email not found in localStorage");
     return;
   }
 
   const handleEdit = () => setIsEditing(true);
+  const handlePasswordChange = () => setIsChangingPassword(true);
 
   const handleSave = async () => {
     try {
@@ -46,7 +52,7 @@ const Profile = () => {
         email: user.email,
         ...editedDetails,
       });
-  
+
       setEmployeeDetails(response.data.updatedEmployee);
       setIsEditing(false);
       alert("Profile updated successfully!");
@@ -58,15 +64,52 @@ const Profile = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    console.log(`Updating ${name} to`, value); // Debugging output
     setEditedDetails((prevDetails) => ({
       ...prevDetails,
       [name]: value,
     }));
   };
-  
-  
-  
+
+  const handlePasswordInputChange = (e) => {
+    const { name, value } = e.target;
+    setPasswordDetails((prevDetails) => ({
+      ...prevDetails,
+      [name]: value,
+    }));
+  };
+
+  const handleSavePassword = async () => {
+    const { oldPassword, newPassword, confirmPassword } = passwordDetails;
+
+    if (!oldPassword || !newPassword || !confirmPassword) {
+      alert("Please fill in all fields.");
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      alert("New password and confirmation do not match.");
+      return;
+    }
+
+    try {
+      const response = await axios.put(`${API_BASE_URL}/change-password`, {
+        email: user.email,
+        oldPassword,
+        newPassword,
+      });
+      if (response.data.success) {
+        alert("Password changed successfully!");
+        setPasswordDetails({ oldPassword: "", newPassword: "", confirmPassword: "" });
+        setIsChangingPassword(false);
+      } else {
+        alert(response.data.message || "Failed to change password.");
+      }
+      console.log(response.data.message);
+    } catch (error) {
+      console.error("Error changing password:", error);
+      alert("Failed to change password. Please try again.");
+    }
+  };
 
   if (!employeeDetails) {
     return <h2>Loading employee details...</h2>;
@@ -96,11 +139,11 @@ const Profile = () => {
           <strong>Gender:</strong>
           {isEditing ? (
             <select name="gender" value={editedDetails.gender} onChange={handleChange}>
-            <option value="">Select</option>
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
-            <option value="Other">Other</option>
-          </select>
+              <option value="">Select</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
           ) : (
             employeeDetails.gender || "N/A"
           )}
@@ -110,12 +153,12 @@ const Profile = () => {
           <strong>Marital Status:</strong>
           {isEditing ? (
             <select name="maritalStatus" value={editedDetails.maritalStatus} onChange={handleChange}>
-            <option value="">Select</option>
-            <option value="Single">Single</option>
-            <option value="Married">Married</option>
-            <option value="Divorced">Divorced</option>
-            <option value="Widowed">Widowed</option>
-          </select>
+              <option value="">Select</option>
+              <option value="Single">Single</option>
+              <option value="Married">Married</option>
+              <option value="Divorced">Divorced</option>
+              <option value="Widowed">Widowed</option>
+            </select>
           ) : (
             employeeDetails.maritalStatus || "N/A"
           )}
@@ -125,6 +168,37 @@ const Profile = () => {
           <button className="save-button" onClick={handleSave}>Save</button>
         ) : (
           <button className="edit-button" onClick={handleEdit}>Edit Profile</button>
+        )}
+
+        {/* Change Password Section */}
+        <h2>Change Password</h2>
+        {!isChangingPassword ? (
+          <button className="change-password-button" onClick={handlePasswordChange}>Change Password</button>
+        ) : (
+          <div className="password-change-form">
+            <input
+              type="password"
+              name="oldPassword"
+              placeholder="Enter Old Password"
+              value={passwordDetails.oldPassword}
+              onChange={handlePasswordInputChange}
+            />
+            <input
+              type="password"
+              name="newPassword"
+              placeholder="Enter New Password"
+              value={passwordDetails.newPassword}
+              onChange={handlePasswordInputChange}
+            />
+            <input
+              type="password"
+              name="confirmPassword"
+              placeholder="Confirm New Password"
+              value={passwordDetails.confirmPassword}
+              onChange={handlePasswordInputChange}
+            />
+            <button className="save-password-button" onClick={handleSavePassword}>Save Password</button>
+          </div>
         )}
       </div>
     </div>

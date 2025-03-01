@@ -37,7 +37,11 @@ const Navbar = () => {
 
         {storedData ? (
           <>
+            <button className="nav-button" onClick={() => navigate("/Time")} aria-label="Time">Time</button>
             <button className="nav-button" onClick={() => navigate("/profile")} aria-label="Profile">Profile</button>
+            <button className="nav-button" onClick={() => navigate("/leaves")} aria-label="Leaves">Leaves</button>
+            <button className="nav-button" onClick={() => navigate("/manage")} aria-label="Leaves">Manage</button>
+            <button className="nav-button" onClick={() => navigate("/Daily")} aria-label="Daily Activity">Daily Activity</button>
             <button className="nav-button logout-button" onClick={handleLogout} aria-label="Logout">Logout</button>
           </>
         ) : (
