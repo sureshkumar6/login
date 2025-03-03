@@ -17,31 +17,33 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
+  
     if (!email || !password) {
       alert("Please fill in all fields");
       return;
     }
-
+  
     try {
       const response = await fetch(`${API_BASE_URL}/login`, {
         method: "POST",
         body: JSON.stringify({ email, password }),
         headers: { "Content-Type": "application/json" },
       });
-
+  
       const result = await response.json();
-
+  
       if (result.employeeId) {
         const userData = {
           name: result.name,
           email: result.email,
           employeeId: result.employeeId,
+          isAdmin: result.isAdmin, // Save admin status
         };
-
+  
         localStorage.setItem("user", JSON.stringify(userData));
         localStorage.setItem("employeeId", result.employeeId);
-
+        localStorage.setItem("isAdmin", result.isAdmin); // Store admin flag
+  
         navigate("/");
       } else {
         alert("Invalid email or password");
@@ -51,6 +53,7 @@ const Login = () => {
       alert("Something went wrong. Please try again.");
     }
   };
+  
 
   return (
     <div className="login center-content">

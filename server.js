@@ -25,6 +25,22 @@ mongoose.connect("mongodb://127.0.0.1:27017/timelogger", {
 //   authSource: "admin"
 // });
 
+// 🔹 Admin Authentication Middleware
+const adminAuth = async (req, res, next) => {
+  try {
+    const { email } = req.headers;
+    const user = await usersModel.findOne({ email });
+
+    if (!user || !user.isAdmin) {
+      return res.status(403).json({ error: "Access denied. Admins only." });
+    }
+
+    next(); // User is an admin, proceed to the next middleware
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 
 // 🔹 Get logs by employeeName
 app.get("/logs", async (req, res) => {
@@ -207,12 +223,46 @@ app.post("/login", async (req, res) => {
       return res.status(400).json({ error: "Invalid email or password" });
     }
 
-    res.json({ name: user.name, email: user.email, employeeId: user.employeeId });
+    res.json({ 
+      name: user.name, 
+      email: user.email, 
+      employeeId: user.employeeId, 
+      isAdmin: user.isAdmin // Send admin status
+    });
   } catch (error) {
     console.error("Error during login:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
+// Example: Admin route to get all users
+app.get("/admin/users", adminAuth, async (req, res) => {
+  try {
+    const users = await usersModel.find();
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Example: Admin can update any user's time log
+app.put("/admin/overwrite-log", adminAuth, async (req, res) => {
+  try {
+    const { employeeName, date, updatedLog } = req.body;
+    const logEntry = await Timelog.findOneAndUpdate(
+      { employeeName, date },
+      updatedLog,
+      { new: true }
+    );
+
+    if (!logEntry) return res.status(404).json({ error: "Log not found" });
+
+    res.json({ message: "Log updated successfully!", logEntry });
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+
 
 app.put("/change-password", async (req, res) => {
   try {
