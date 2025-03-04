@@ -5,7 +5,7 @@ const userSchema = new mongoose.Schema({
     email: String,
     password: String,
     employeeId: String, // Add employeeId field
-    isAdmin: { type: Boolean, default: false },
+    isAdmin:Boolean
 });
 
 const usersModel = mongoose.model("users", userSchema);

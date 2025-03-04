@@ -6,15 +6,16 @@ const SignUp = () => {
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState("Employee"); // Default role: Employee
-  const [adminCode, setAdminCode] = useState(""); // Required only if registering as Admin
+  const [adminCode, setAdminCode] = useState(""); // Admin verification code
+  const [isAdmin, setIsAdmin] = useState(false); // Admin toggle state
   const navigate = useNavigate();
   const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:6060";
 
   useEffect(() => {
     const auth = localStorage.getItem("user");
     if (auth) {
-      navigate("/");
+      const isAdminUser = JSON.parse(localStorage.getItem("admin") || "false");
+      navigate(isAdminUser ? "/admin" : "/");
     }
   }, []);
 
@@ -26,36 +27,42 @@ const SignUp = () => {
       return;
     }
 
-    let isAdmin = role === "Admin"; // If "Admin" is selected, set isAdmin to true
-
+    // Ensure isAdmin is only granted when the correct admin code is provided
     if (isAdmin && adminCode !== "888888") {
-      alert("Incorrect Admin Code! Please enter the correct Admin Code.");
+      alert("Invalid admin code. You are not authorized to create an admin user.");
       return;
     }
 
-    let result = await fetch(`${API_BASE_URL}/register`, {
-      method: "POST",
-      body: JSON.stringify({ name, email, password, isAdmin }), // Send isAdmin
-      headers: { "Content-Type": "application/json" },
-    });
+    try {
+      const response = await fetch(`${API_BASE_URL}/register`, {
+        method: "POST",
+        body: JSON.stringify({ name, email, password, isAdmin }),
+        headers: { "Content-Type": "application/json" },
+      });
 
-    result = await result.json();
+      const result = await response.json();
 
-    if (result.error) {
-      alert(result.error);
-    } else {
-      const userData = {
-        name,
-        email,
-        employeeId: result.employeeId,
-        isAdmin: result.isAdmin, // Store isAdmin status
-      };
+      if (result.error) {
+        alert(result.error);
+      } else {
+        alert("User successfully created!");
 
-      localStorage.setItem("user", JSON.stringify(userData));
-      localStorage.setItem("employeeId", result.employeeId);
-      localStorage.setItem("isAdmin", result.isAdmin); // Save admin status
+        // Store user details in localStorage
+        const userData = {
+          name: result.name,
+          email: result.email,
+          employeeId: result.employeeId,
+        };
+        localStorage.setItem("user", JSON.stringify(userData));
+        localStorage.setItem("employeeId", result.employeeId);
+        localStorage.setItem("admin", JSON.stringify(result.isAdmin));
 
-      navigate("/");
+        // Redirect based on user role
+        navigate(result.isAdmin ? "/admin" : "/");
+      }
+    } catch (error) {
+      console.error("Error during signup:", error);
+      alert("Something went wrong. Please try again.");
     }
   };
 
@@ -70,7 +77,6 @@ const SignUp = () => {
           <div className="loginsys">
             <div className="col-12">
               <form className="loginform" onSubmit={collectData}>
-                {/* Name Input */}
                 <div className="inputBox mb-3">
                   <i className="fas fa-user"></i>
                   <input
@@ -82,11 +88,9 @@ const SignUp = () => {
                   />
                 </div>
 
-                {/* Email Input */}
                 <div className="inputBox mb-3">
                   <i className="fas fa-envelope"></i>
                   <input
-                    type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Enter Email"
@@ -94,7 +98,6 @@ const SignUp = () => {
                   />
                 </div>
 
-                {/* Password Input */}
                 <div className="inputBox mb-3">
                   <i className="fas fa-key"></i>
                   <input
@@ -106,17 +109,20 @@ const SignUp = () => {
                   />
                 </div>
 
-                {/* Role Selection */}
-                <div className="inputBox mb-3">
-                  <i className="fas fa-user-tag"></i>
-                  <select value={role} onChange={(e) => setRole(e.target.value)} required>
-                    <option value="Employee">Employee</option>
-                    <option value="Admin">Admin</option>
-                  </select>
+                {/* Admin Checkbox */}
+                <div className="checkbox-container mb-3">
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={isAdmin}
+                      onChange={() => setIsAdmin(!isAdmin)}
+                    />
+                    Register as Admin
+                  </label>
                 </div>
 
-                {/* Admin Code Input (Only shown if Admin is selected) */}
-                {role === "Admin" && (
+                {/* Admin Code Input (Only shown if registering as Admin) */}
+                {isAdmin && (
                   <div className="inputBox mb-3">
                     <i className="fas fa-lock"></i>
                     <input
@@ -124,7 +130,7 @@ const SignUp = () => {
                       value={adminCode}
                       onChange={(e) => setAdminCode(e.target.value)}
                       placeholder="Enter Admin Code"
-                      required={role === "Admin"}
+                      required
                     />
                   </div>
                 )}

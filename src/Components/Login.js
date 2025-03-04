@@ -11,49 +11,54 @@ const Login = () => {
   useEffect(() => {
     const auth = localStorage.getItem("user");
     if (auth) {
-      navigate("/");
+      const isAdmin = JSON.parse(localStorage.getItem("admin") || "false");
+      navigate(isAdmin ? "/admin" : "/");
     }
   }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();
-  
+
     if (!email || !password) {
       alert("Please fill in all fields");
       return;
     }
-  
+
     try {
       const response = await fetch(`${API_BASE_URL}/login`, {
         method: "POST",
         body: JSON.stringify({ email, password }),
         headers: { "Content-Type": "application/json" },
       });
-  
+
       const result = await response.json();
-  
-      if (result.employeeId) {
-        const userData = {
-          name: result.name,
-          email: result.email,
-          employeeId: result.employeeId,
-          isAdmin: result.isAdmin, // Save admin status
-        };
-  
-        localStorage.setItem("user", JSON.stringify(userData));
-        localStorage.setItem("employeeId", result.employeeId);
-        localStorage.setItem("isAdmin", result.isAdmin); // Store admin flag
-  
-        navigate("/");
-      } else {
-        alert("Invalid email or password");
-      }
+
+      console.log("Login result:", result); // Debugging line
+
+        if (result.employeeId) {
+          const userData = {
+            name: result.name,
+            email: result.email,
+            employeeId: result.employeeId,
+          };
+
+          localStorage.setItem("user", JSON.stringify(userData));
+          localStorage.setItem("employeeId", result.employeeId);
+          
+          console.log("isAdmin received from API:", result.isAdmin); // Debugging line
+          
+          const isAdmin = Boolean(result.isAdmin); // Ensure correct boolean conversion
+          localStorage.setItem("admin", JSON.stringify(isAdmin));
+
+          navigate(isAdmin ? "/admin" : "/");
+        } else {
+          alert("Invalid email or password");
+        }
     } catch (error) {
       console.error("Login error:", error);
       alert("Something went wrong. Please try again.");
     }
   };
-  
 
   return (
     <div className="login center-content">
@@ -70,7 +75,6 @@ const Login = () => {
                 <div className="inputBox mb-3">
                   <i className="fas fa-envelope"></i>
                   <input
-                    // type="email"
                     placeholder="Enter Email"
                     onChange={(e) => setEmail(e.target.value)}
                     value={email}

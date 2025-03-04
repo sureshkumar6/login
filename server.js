@@ -25,22 +25,6 @@ mongoose.connect("mongodb://127.0.0.1:27017/timelogger", {
 //   authSource: "admin"
 // });
 
-// 🔹 Admin Authentication Middleware
-const adminAuth = async (req, res, next) => {
-  try {
-    const { email } = req.headers;
-    const user = await usersModel.findOne({ email });
-
-    if (!user || !user.isAdmin) {
-      return res.status(403).json({ error: "Access denied. Admins only." });
-    }
-
-    next(); // User is an admin, proceed to the next middleware
-  } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
-  }
-};
-
 
 // 🔹 Get logs by employeeName
 app.get("/logs", async (req, res) => {
@@ -187,9 +171,13 @@ app.post("/logs", async (req, res) => {
 
 app.post("/register", async (req, res) => {
   try {
-    const { name, email, password } = req.body;
-    const existingUser = await usersModel.findOne({ email });
+    const { name, email, password, isAdmin } = req.body;
 
+    if (!name || !email || !password) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+
+    const existingUser = await usersModel.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ error: "Email already registered" });
     }
@@ -199,20 +187,35 @@ app.post("/register", async (req, res) => {
     let lastEmployeeId = lastEmployee ? parseInt(lastEmployee.employeeId.replace("EMP", ""), 10) : 1000;
     const employeeId = `EMP${lastEmployeeId + 1}`;
 
-    // Save User (Storing password in plain text)
-    const user = new usersModel({ name, email, password, employeeId });
+    // Save User (No Password Encryption)
+    const user = new usersModel({ 
+      name, 
+      email, 
+      password,  // Storing password as plain text (⚠️ Not recommended for production)
+      employeeId, 
+      isAdmin: isAdmin || false // Default to false if not provided
+    });
+
     await user.save();
 
     // Save Employee Details
     const employeeDetails = new EmployeeDetails({ employeeId, name, email, dob: "", gender: "", maritalStatus: "" });
     await employeeDetails.save();
 
-    res.json({ message: "User registered successfully!", name, email, employeeId });
+    res.json({ 
+      message: "User registered successfully!", 
+      name, 
+      email, 
+      employeeId, 
+      isAdmin: user.isAdmin 
+    });
+
   } catch (error) {
     console.error("Error during registration:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
 
 app.post("/login", async (req, res) => {
   try {
@@ -223,41 +226,16 @@ app.post("/login", async (req, res) => {
       return res.status(400).json({ error: "Invalid email or password" });
     }
 
-    res.json({ 
-      name: user.name, 
-      email: user.email, 
-      employeeId: user.employeeId, 
-      isAdmin: user.isAdmin // Send admin status
+    console.log("User from DB:", user); // Debugging: Check what MongoDB returns
+
+    res.json({
+      name: user.name,
+      email: user.email,
+      employeeId: user.employeeId,
+      isAdmin: user.isAdmin, // Correctly getting isAdmin from DB
     });
   } catch (error) {
     console.error("Error during login:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
-// Example: Admin route to get all users
-app.get("/admin/users", adminAuth, async (req, res) => {
-  try {
-    const users = await usersModel.find();
-    res.json(users);
-  } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
-
-// Example: Admin can update any user's time log
-app.put("/admin/overwrite-log", adminAuth, async (req, res) => {
-  try {
-    const { employeeName, date, updatedLog } = req.body;
-    const logEntry = await Timelog.findOneAndUpdate(
-      { employeeName, date },
-      updatedLog,
-      { new: true }
-    );
-
-    if (!logEntry) return res.status(404).json({ error: "Log not found" });
-
-    res.json({ message: "Log updated successfully!", logEntry });
-  } catch (error) {
     res.status(500).json({ error: "Internal server error" });
   }
 });

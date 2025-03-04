@@ -5,18 +5,22 @@ import "./Navbar.css"; // Ensure you have this file for styling
 const Navbar = () => {
   const navigate = useNavigate();
 
-  // Safely parse user data
+  // Get user and admin status
   let storedData = null;
+  let isAdmin = false;
+
   try {
     storedData = JSON.parse(localStorage.getItem("user")) || null;
+    isAdmin = localStorage.getItem("admin") === "true"; // Check if "true" as string
   } catch (error) {
     console.error("Error parsing localStorage data:", error);
   }
 
   const handleLogout = () => {
-    localStorage.removeItem("user");       // Remove user data
-    localStorage.removeItem("employeeId"); // Remove employeeId if stored separately
-    navigate("/login"); // Redirect to login page
+    localStorage.removeItem("user");       
+    localStorage.removeItem("employeeId"); 
+    localStorage.removeItem("admin");      
+    navigate("/login"); 
   };
 
   return (
@@ -27,25 +31,35 @@ const Navbar = () => {
           alt="Company Logo" 
           className="logo" 
           onClick={() => navigate("/")}
-          style={{ cursor: "pointer" }} // Ensure logo is clickable
+          style={{ cursor: "pointer" }}
         />
       </div>
 
       <div className="navbar-right">
-        <button className="nav-button" onClick={() => navigate("/")} aria-label="Home">Home</button>
-        <button className="nav-button" onClick={() => navigate("/salary")} aria-label="Salary">Salary</button>
-
         {storedData ? (
-          <>
-            <button className="nav-button" onClick={() => navigate("/Time")} aria-label="Time">Time</button>
-            <button className="nav-button" onClick={() => navigate("/profile")} aria-label="Profile">Profile</button>
-            <button className="nav-button" onClick={() => navigate("/leaves")} aria-label="Leaves">Leaves</button>
-            <button className="nav-button" onClick={() => navigate("/manage")} aria-label="Leaves">Manage</button>
-            <button className="nav-button" onClick={() => navigate("/Daily")} aria-label="Daily Activity">Daily Activity</button>
-            <button className="nav-button logout-button" onClick={handleLogout} aria-label="Logout">Logout</button>
-          </>
+          isAdmin ? (
+            // If Admin: Show Admin Menu
+            <>
+              <button className="nav-button" onClick={() => navigate("/admin/employees")}>Manage Employees</button>
+              <button className="nav-button" onClick={() => navigate("/admin/leaves")}>Manage Leaves</button>
+              <button className="nav-button" onClick={() => navigate("/admin/timelogger")}>Modify Timelogger</button>
+              <button className="nav-button logout-button" onClick={handleLogout}>Logout</button>
+            </>
+          ) : (
+            // If Employee: Show Employee Menu
+            <>
+              <button className="nav-button" onClick={() => navigate("/")}>Home</button>
+              <button className="nav-button" onClick={() => navigate("/salary")}>Salary</button>
+              <button className="nav-button" onClick={() => navigate("/Time")}>Time</button>
+              <button className="nav-button" onClick={() => navigate("/profile")}>Profile</button>
+              <button className="nav-button" onClick={() => navigate("/leaves")}>Leaves</button>
+              <button className="nav-button" onClick={() => navigate("/manage")}>Manage</button>
+              <button className="nav-button" onClick={() => navigate("/Daily")}>Daily</button>
+              <button className="nav-button logout-button" onClick={handleLogout}>Logout</button>
+            </>
+          )
         ) : (
-          <button className="nav-button" onClick={() => navigate("/login")} aria-label="Login">Login</button>
+          <button className="nav-button" onClick={() => navigate("/login")}>Login</button>
         )}
       </div>
     </nav>
