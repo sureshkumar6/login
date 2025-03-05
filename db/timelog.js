@@ -15,9 +15,9 @@ const timelogSchema = new mongoose.Schema({
   shortBreak3Start: String,
   shortBreak3End: String,
   comment: String,
-  totalLoginHours: String, // Stores total login hours
-  breakDuration: String,   // Stores break duration
-  actualLoginHours: String, // Stores actual login hours after breaks
+  totalLoginHours: String, 
+  breakDuration: String,   
+  actualLoginHours: String, 
   adminLoginHours: String
 });
 

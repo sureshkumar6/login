@@ -46,6 +46,7 @@ app.get("/logs", async (req, res) => {
 
 
 app.post("/logs", async (req, res) => {
+  console.log("Received request:", req.body);
   try {
     const { date, comment, ...logTimes } = req.body;
     const userEmail = req.headers["user-email"];
@@ -166,8 +167,171 @@ app.post("/logs", async (req, res) => {
 });
 
 
+//for admin 
+app.put("/logs", async (req, res) => {
+  console.log("Received request:", req.body);
+  try {
+    const { employeeName, date, logType, ...logTimes } = req.body;
+
+    if (!employeeName || !date || !logType || Object.keys(logTimes).length === 0) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const fieldMap = {
+      "Login Time": "loginTime",
+      "Dinner Break - Start Time": "dinnerStartTime",
+      "Dinner Break - End Time": "dinnerEndTime",
+      "Logout Time": "logoutTime",
+      "Short Break 1 Start": "shortBreak1Start",
+      "Short Break 1 End": "shortBreak1End",
+      "Short Break 2 Start": "shortBreak2Start",
+      "Short Break 2 End": "shortBreak2End",
+      "Short Break 3 Start": "shortBreak3Start",
+      "Short Break 3 End": "shortBreak3End",
+    };
+
+    const fieldToUpdate = fieldMap[logType];
+    if (!fieldToUpdate) {
+      return res.status(400).json({ error: "Invalid log type" });
+    }
+
+    const logTime = logTimes[fieldToUpdate];
+    if (!logTime) {
+      return res.status(400).json({ error: "Log time is missing" });
+    }
+
+    let logEntry = await Timelog.findOne({ date, employeeName });
+
+    if (!logEntry) {
+      return res.status(404).json({ error: "Log entry not found" });
+    }
+
+    // Update the specific field
+    logEntry[fieldToUpdate] = logTime;
+
+    // 🔹 Function to Calculate Hours Difference (Only Counts If > 5 min)
+    const calculateHours = (start, end) => {
+      if (!start || !end) return 0;
+
+      const startTime = new Date(`2023-01-01T${start}`);
+      let endTime = new Date(`2023-01-01T${end}`);
+
+      if (endTime < startTime) {
+        endTime.setDate(endTime.getDate() + 1);
+      }
+
+      const diff = (endTime - startTime) / (1000 * 60);
+      return diff > 5 ? diff / 60 : 0;
+    };
+
+    // 🔹 Function to Convert Decimal Hours to HH:MM Format
+    const convertDecimalToHHMM = (decimalHours) => {
+      const hours = Math.floor(decimalHours);
+      const minutes = Math.round((decimalHours - hours) * 60);
+      return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
+    };
+
+    // ✅ Calculate Total Login Hours
+    const totalLoginHours = calculateHours(logEntry.loginTime, logEntry.logoutTime);
+
+    // ✅ Calculate Break Duration (Only Including Breaks > 5 min)
+    const breakDuration =
+      calculateHours(logEntry.dinnerStartTime, logEntry.dinnerEndTime) +
+      calculateHours(logEntry.shortBreak1Start, logEntry.shortBreak1End) +
+      calculateHours(logEntry.shortBreak2Start, logEntry.shortBreak2End) +
+      calculateHours(logEntry.shortBreak3Start, logEntry.shortBreak3End);
+
+    // ✅ Calculate Actual Login Hours
+    const actualLoginHoursDecimal = (totalLoginHours - breakDuration).toFixed(2);
+    const actualLoginHoursFormatted = convertDecimalToHHMM(actualLoginHoursDecimal);
+
+    // 🔹 Convert Actual Login Hrs to Admin Login Hrs Based on Rounding Rules
+    const roundToAdminHours = (decimalHours) => {
+      const hours = Math.floor(decimalHours);
+      const minutes = Math.round((decimalHours - hours) * 60);
+
+      let roundedMinutes = 0;
+      if (minutes >= 8 && minutes <= 22) {
+        roundedMinutes = 0.25;
+      } else if (minutes >= 23 && minutes <= 37) {
+        roundedMinutes = 0.50;
+      } else if (minutes >= 38 && minutes <= 52) {
+        roundedMinutes = 0.75;
+      } else if (minutes >= 53 && minutes <= 59) {
+        roundedMinutes = 1.0;
+      }
+
+      return (hours + roundedMinutes).toFixed(2);
+    };
+
+    const adminLoginHours = roundToAdminHours(parseFloat(actualLoginHoursDecimal));
+
+    // ✅ Store in MongoDB in HH:MM Format
+    logEntry.totalLoginHours = convertDecimalToHHMM(totalLoginHours);
+    logEntry.breakDuration = convertDecimalToHHMM(breakDuration);
+    logEntry.actualLoginHours = actualLoginHoursFormatted;
+    logEntry.adminLoginHours = adminLoginHours; // Store new field
+
+    await logEntry.save();
+    res.json({ message: "Log updated successfully!" });
+  } catch (error) {
+    console.error("Error updating log:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 
+
+
+
+
+
+// app.post("/register", async (req, res) => {
+//   try {
+//     const { name, email, password, isAdmin } = req.body;
+
+//     if (!name || !email || !password) {
+//       return res.status(400).json({ error: "All fields are required" });
+//     }
+
+//     const existingUser = await usersModel.findOne({ email });
+//     if (existingUser) {
+//       return res.status(400).json({ error: "Email already registered" });
+//     }
+
+//     // Generate Employee ID
+//     let lastEmployee = await EmployeeDetails.findOne({ employeeId: /^EMP\d+$/ }).sort({ employeeId: -1 });
+//     let lastEmployeeId = lastEmployee ? parseInt(lastEmployee.employeeId.replace("EMP", ""), 10) : 1000;
+//     const employeeId = `EMP${lastEmployeeId + 1}`;
+
+//     // Save User (No Password Encryption)
+//     const user = new usersModel({ 
+//       name, 
+//       email, 
+//       password,  // Storing password as plain text (⚠️ Not recommended for production)
+//       employeeId, 
+//       isAdmin: isAdmin || false // Default to false if not provided
+//     });
+
+//     await user.save();
+
+//     // Save Employee Details
+//     const employeeDetails = new EmployeeDetails({ employeeId, name, email, dob: "", gender: "", maritalStatus: "" });
+//     await employeeDetails.save();
+
+//     res.json({ 
+//       message: "User registered successfully!", 
+//       name, 
+//       email, 
+//       employeeId, 
+//       isAdmin: user.isAdmin 
+//     });
+
+//   } catch (error) {
+//     console.error("Error during registration:", error);
+//     res.status(500).json({ error: "Internal server error" });
+//   }
+// });
 
 app.post("/register", async (req, res) => {
   try {
@@ -182,24 +346,33 @@ app.post("/register", async (req, res) => {
       return res.status(400).json({ error: "Email already registered" });
     }
 
-    // Generate Employee ID
+    // ✅ Generate Employee ID for both Admins & Non-Admins
     let lastEmployee = await EmployeeDetails.findOne({ employeeId: /^EMP\d+$/ }).sort({ employeeId: -1 });
     let lastEmployeeId = lastEmployee ? parseInt(lastEmployee.employeeId.replace("EMP", ""), 10) : 1000;
-    const employeeId = `EMP${lastEmployeeId + 1}`;
+    let employeeId = `EMP${lastEmployeeId + 1}`;
 
-    // Save User (No Password Encryption)
+    // ✅ Save User
     const user = new usersModel({ 
       name, 
       email, 
-      password,  // Storing password as plain text (⚠️ Not recommended for production)
+      password,  
       employeeId, 
-      isAdmin: isAdmin || false // Default to false if not provided
+      isAdmin: isAdmin || false, 
     });
 
     await user.save();
 
-    // Save Employee Details
-    const employeeDetails = new EmployeeDetails({ employeeId, name, email, dob: "", gender: "", maritalStatus: "" });
+    // ✅ Save Employee Details (Admins also get stored)
+    const employeeDetails = new EmployeeDetails({ 
+      employeeId, 
+      name, 
+      email, 
+      dob: "", 
+      gender: "", 
+      maritalStatus: "",
+      isAdmin: isAdmin || false,  
+    });
+
     await employeeDetails.save();
 
     res.json({ 
@@ -215,6 +388,7 @@ app.post("/register", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
 
 
 app.post("/login", async (req, res) => {
@@ -444,6 +618,56 @@ app.post("/announcements", async (req, res) => {
     res.status(500).json({ error: "Error adding announcement" });
   }
 });
+
+///
+// 🔹 Fetch all employees
+app.get("/employees", async (req, res) => {
+  try {
+    // const employees = await EmployeeDetails.find();
+    const employees = await EmployeeDetails.find({ isAdmin: false }, "name");
+    res.json(employees);
+  } catch (error) {
+    console.error("Error fetching employees:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+
+// 🔹 Fetch logs of a specific employee
+app.get("/employee-logs", async (req, res) => {
+  try {
+    const { employeeId } = req.query;
+    if (!employeeId) {
+      return res.status(400).json({ error: "Employee ID is required" });
+    }
+
+    const logs = await Timelog.find({ employeeId }).sort({ date: -1 });
+    res.json(logs);
+  } catch (error) {
+    console.error("Error fetching employee logs:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+// 🔹 Update an existing time log entry (for Admins)
+app.put("/update-logs", async (req, res) => {
+  try {
+    const { logId, updates } = req.body;
+    if (!logId || !updates) {
+      return res.status(400).json({ error: "Log ID and update fields are required" });
+    }
+
+    const updatedLog = await Timelog.findByIdAndUpdate(logId, updates, { new: true });
+    if (!updatedLog) {
+      return res.status(404).json({ error: "Log entry not found" });
+    }
+
+    res.json({ message: "Log updated successfully!", updatedLog });
+  } catch (error) {
+    console.error("Error updating log:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 
 app.listen(6060, () => {
   console.log("Server running on port 6060");

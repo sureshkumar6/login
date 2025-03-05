@@ -25,7 +25,8 @@ const ManageLeaves = () => {
   return (
     <div>
       <h2>Manage Leave Requests</h2>
-      <ul>
+      <p>Downloading.....</p>
+      {/* <ul>
         {leaves.map((leave) => (
           <li key={leave._id}>
             {leave.email} - {leave.status}
@@ -33,7 +34,7 @@ const ManageLeaves = () => {
             <button onClick={() => updateStatus(leave._id, "Rejected")}>Reject</button>
           </li>
         ))}
-      </ul>
+      </ul> */}
     </div>
   );
 };

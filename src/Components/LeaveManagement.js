@@ -16,11 +16,7 @@ const LeaveManagement = () => {
     }
   }, []); // ✅ Empty dependency array ensures it runs only once
   
-  // useEffect(() => {
-  //   if (user && user.email) {
-  //     fetchLeaves();
-  //   }
-  // }, [user]); // Add user dependency
+
 
   const fetchLeaves = async (email) => {
     if (!email) {
