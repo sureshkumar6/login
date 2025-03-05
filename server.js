@@ -282,57 +282,6 @@ app.put("/logs", async (req, res) => {
 
 
 
-
-
-
-
-// app.post("/register", async (req, res) => {
-//   try {
-//     const { name, email, password, isAdmin } = req.body;
-
-//     if (!name || !email || !password) {
-//       return res.status(400).json({ error: "All fields are required" });
-//     }
-
-//     const existingUser = await usersModel.findOne({ email });
-//     if (existingUser) {
-//       return res.status(400).json({ error: "Email already registered" });
-//     }
-
-//     // Generate Employee ID
-//     let lastEmployee = await EmployeeDetails.findOne({ employeeId: /^EMP\d+$/ }).sort({ employeeId: -1 });
-//     let lastEmployeeId = lastEmployee ? parseInt(lastEmployee.employeeId.replace("EMP", ""), 10) : 1000;
-//     const employeeId = `EMP${lastEmployeeId + 1}`;
-
-//     // Save User (No Password Encryption)
-//     const user = new usersModel({ 
-//       name, 
-//       email, 
-//       password,  // Storing password as plain text (⚠️ Not recommended for production)
-//       employeeId, 
-//       isAdmin: isAdmin || false // Default to false if not provided
-//     });
-
-//     await user.save();
-
-//     // Save Employee Details
-//     const employeeDetails = new EmployeeDetails({ employeeId, name, email, dob: "", gender: "", maritalStatus: "" });
-//     await employeeDetails.save();
-
-//     res.json({ 
-//       message: "User registered successfully!", 
-//       name, 
-//       email, 
-//       employeeId, 
-//       isAdmin: user.isAdmin 
-//     });
-
-//   } catch (error) {
-//     console.error("Error during registration:", error);
-//     res.status(500).json({ error: "Internal server error" });
-//   }
-// });
-
 app.post("/register", async (req, res) => {
   try {
     const { name, email, password, isAdmin } = req.body;
@@ -559,21 +508,27 @@ app.post("/leave-requests", async (req, res) => {
     res.status(500).json({ message: "Error creating leave request" });
   }
 });
+
 app.get("/leave-requests", async (req, res) => {
   const { email } = req.query; // Get email from request query
 
-  if (!email) {
-    return res.status(400).json({ error: "Email is required to fetch leave requests" });
-  }
-
   try {
-    const leaveRequests = await LeaveRequest.find({ email }).sort({ requestDate: -1 });
-    res.status(200).json(leaveRequests);
+    // If an email is provided, return only that employee's leaves
+    if (email) {
+      const leaveRequests = await LeaveRequest.find({ email }).sort({ requestDate: -1 });
+      return res.status(200).json(leaveRequests);
+    }
+    
+    // Otherwise, return ALL leave requests (for admins)
+    const allLeaveRequests = await LeaveRequest.find().sort({ requestDate: -1 });
+    res.status(200).json(allLeaveRequests);
+
   } catch (error) {
     console.error("Error fetching leave requests:", error);
     res.status(500).json({ error: "Failed to fetch leave requests." });
   }
 });
+
 
 
 
