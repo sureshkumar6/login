@@ -1,0 +1,96 @@
+.container {
+    max-width: 90%;
+    margin: auto;
+    text-align: center;
+  }
+  
+  .title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+  
+  .employee-carousel {
+    padding: 20px;
+  }
+  
+  .employee-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #ffffff;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  .employee-card:hover {
+    transform: scale(1.05);
+  }
+  
+  /* Circular Profile Picture */
+  .profile-pic {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    font-weight: bold;
+    color: #555;
+    overflow: hidden;
+  }
+  
+  .profile-pic img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  
+  /* Employee Name */
+  .employee-name {
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 10px;
+  }
+  
+  /* Status Styling */
+  .employee-status {
+    font-size: 14px;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 5px;
+    margin: 5px 0;
+  }
+  
+  /* Different status colors */
+  .employee-status.working {
+    background-color: #d4edda;
+    color: #155724;
+  }
+  
+  .employee-status.on-break {
+    background-color: #fff3cd;
+    color: #856404;
+  }
+  
+  .employee-status.on-leave {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
+  
+  .employee-status.logged-out {
+    background-color: #e2e3e5;
+    color: #6c757d;
+  }
+  
+  /* Current Task */
+  .employee-task {
+    font-size: 13px;
+    color: #666;
+  }
+  
