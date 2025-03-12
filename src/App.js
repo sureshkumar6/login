@@ -1,8 +1,7 @@
 import "./App.css";
-import { BrowserRouter, Routes, Route, Navigate  } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import Home from "./Components/Home.js";
-import Login from "./Components/Login.js";
-import SignUp from "./Components/SignUp.js";
 import PrivateComponent from "./Components/PrivateComponent.js";
 import Timelogger from "./Components/Timelogger.js";
 import Salary from "./Components/Salary.js";
@@ -15,14 +14,35 @@ import AdminDashboard from "./Components/Admin/AdminDashboard.js";
 import ManageLeaves from "./Components/Admin/ManageLeaves.js";
 import AdminTimelogger from "./Components/Admin/AdminTimelogger.js";
 import AdminComponent from "./Components/AdminComponent.js";
+import DoubleSliderAuth from "./Components/DoubleSliderAuth.js";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
 function App() {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+  
+    if (storedUser) {
+      setUser({ 
+        isAuthenticated: true, 
+        isAdmin: storedUser.isAdmin === true // Ensure boolean check
+      });
+    } else {
+      setUser({ isAuthenticated: false, isAdmin: false });
+    }
+  }, []);
+  
+
+  if (user === null) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="App my-bg">
       <BrowserRouter>
         <Routes>
-          {/* Private Routes - Only logged-in users can access */}
+          {/* Private Routes - Only logged-in employees can access */}
           <Route element={<PrivateComponent />}>
             <Route path="/" element={<Home />} />
             <Route path="/Time" element={<Timelogger />} />
@@ -31,30 +51,34 @@ function App() {
             <Route path="/leaves" element={<LeaveRequest />} />
             <Route path="/manage" element={<LeaveManagement />} />
             <Route path="/profile" element={<Profile />} />
-            {/* Catch-all route for employees */}
-            <Route path="*" element={<Navigate to="/" />} />
           </Route>
 
-          {/* Private Admin Routes */}
+          {/* Private Admin Routes - Only admins can access */}
           <Route element={<AdminComponent />}>
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/employees" element={<EmployeeManagement />} />
             <Route path="/admin/leaves" element={<ManageLeaves />} />
             <Route path="/admin/timelogger" element={<AdminTimelogger />} />
-             {/* Catch-all route for admins */}
-             <Route path="*" element={<Navigate to="/admin" />} />
           </Route>
 
           {/* Public Routes - Only for non-logged-in users */}
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/login" element={<Login />} />
-          {/* Catch-all for undefined routes for non-logged-in users */}
-          <Route path="*" element={<Navigate to="/login" />} />
+          <Route
+            path="/login"
+            element={
+              user.isAuthenticated ? (
+                user.isAdmin ? <Navigate to="/admin" replace /> : <Navigate to="/" replace />
+              ) : (
+                <DoubleSliderAuth />
+              )
+            }
+          />
+
+          {/* Catch-All Route - Redirect unknown paths */}
+          <Route path="*" element={<Navigate to={user.isAdmin ? "/admin" : "/"} />} />
         </Routes>
       </BrowserRouter>
     </div>
   );
 }
-
 
 export default App;

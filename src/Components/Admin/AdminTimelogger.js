@@ -93,13 +93,13 @@ const AdminTimeLogger = () => {
   };
 
   return (
-    <div className="p-4">
+    <div>
       <h1 className="text-xl font-bold mb-4">Admin Time Logger</h1>
 
       {/* Error Message */}
       {error && <p className="text-red-500">{error}</p>}
 
-      <div className="space-y-4">
+      <div className="space-y-4 adminLogger">
         {/* Employee Dropdown */}
         <select
           value={selectedEmployee}

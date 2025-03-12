@@ -4,11 +4,14 @@ import Navbar from "./Navbar.js";
 
 const PrivateComponent = () => {
   const user = JSON.parse(localStorage.getItem("user"));
-  const isAdmin = JSON.parse(localStorage.getItem("admin") || "false"); // Convert to boolean
 
-  // If the user is NOT logged in or is an Admin, redirect them to login
-  if (!user || isAdmin) {
+  if (!user) {
     return <Navigate to="/login" />;
+  }
+
+  // If the user is an admin, redirect them to the admin dashboard
+  if (user.isAdmin) {
+    return <Navigate to="/admin" />;
   }
 
   return (

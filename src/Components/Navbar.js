@@ -1,9 +1,10 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import { useNavigate, NavLink } from "react-router-dom";
 import "./Navbar.css"; // Ensure you have this file for styling
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const [showNavbar, setShowNavbar] = useState(false); // Manage mobile menu state
 
   // Get user and admin status
   let storedData = null;
@@ -23,44 +24,93 @@ const Navbar = () => {
     navigate("/login"); 
   };
 
+  // Testing
+  const handleLogoClick = () => {
+    if (isAdmin) {
+      navigate("/admin"); // Admins should go to the admin dashboard
+    } else if (storedData) {
+      navigate("/"); // Employees should go to home
+    } else {
+      navigate("/login"); // If no user is logged in, send to login page
+    }
+  };
+  const handleShowNavbar = () => {
+    setShowNavbar(!showNavbar);
+  };
+
   return (
     <nav className="navbar">
-      <div className="navbar-left">
-        <img 
-          src="/logo.png" 
-          alt="Company Logo" 
-          className="logo" 
-          onClick={() => navigate("/")}
-          style={{ cursor: "pointer" }}
-        />
-      </div>
+      <div className="navContainer">
+        <div className="navbar-logo">
+          <img 
+            src="/logo.png" 
+            alt="Company Logo" 
+            className="logo" 
+            onClick={handleLogoClick} // Testing
+            style={{ cursor: "pointer" }}
+          />
+        </div>
 
-      <div className="navbar-right">
-        {storedData ? (
-          isAdmin ? (
-            // If Admin: Show Admin Menu
-            <>
-              <button className="nav-button" onClick={() => navigate("/admin/employees")}>Manage Employees</button>
-              <button className="nav-button" onClick={() => navigate("/admin/leaves")}>Manage Leaves</button>
-              <button className="nav-button" onClick={() => navigate("/admin/timelogger")}>Modify Timelogger</button>
-              <button className="nav-button logout-button" onClick={handleLogout}>Logout</button>
-            </>
-          ) : (
-            // If Employee: Show Employee Menu
-            <>
-              <button className="nav-button" onClick={() => navigate("/")}>Home</button>
-              <button className="nav-button" onClick={() => navigate("/salary")}>Salary</button>
-              <button className="nav-button" onClick={() => navigate("/Time")}>Time</button>
-              <button className="nav-button" onClick={() => navigate("/profile")}>Profile</button>
-              <button className="nav-button" onClick={() => navigate("/leaves")}>Leaves</button>
-              <button className="nav-button" onClick={() => navigate("/manage")}>Manage</button>
-              <button className="nav-button" onClick={() => navigate("/Daily")}>Daily</button>
-              <button className="nav-button logout-button" onClick={handleLogout}>Logout</button>
-            </>
-          )
-        ) : (
-          <button className="nav-button" onClick={() => navigate("/login")}>Login</button>
-        )}
+        {/* Menu Toggle Button for Mobile */}
+        <div className="menu-icon" onClick={handleShowNavbar}>
+          ☰ {/* You can replace this with an actual hamburger icon component */}
+        </div>
+
+        <div className={`nav-elements ${showNavbar ? "active" : ""}`}>
+          <ul>
+            {storedData ? (
+              isAdmin ? (
+                <>
+                  <li>
+                    <NavLink to="/admin/employees">Manage Employees</NavLink>
+                  </li>
+                  <li>
+                    <NavLink to="/admin/leaves">Manage Leaves</NavLink>
+                  </li>
+                  <li>
+                    <NavLink to="/admin/timelogger">Modify Timelogger</NavLink>
+                  </li>
+                  <li>
+                    <button className="nav-button logout-button" onClick={handleLogout}>
+                      Logout
+                    </button>
+                  </li>
+                </>
+              ) : (
+                <>
+                  <li>
+                    <NavLink to="/">Home</NavLink>
+                  </li>
+                  <li>
+                    <NavLink to="/salary">Salary</NavLink>
+                  </li>
+                  <li>
+                    <NavLink to="/Time">Time</NavLink>
+                  </li>
+                  <li>
+                    <NavLink to="/profile">Profile</NavLink>
+                  </li>
+                  <li>
+                    <NavLink to="/leaves">Leaves</NavLink>
+                  </li>
+                  <li>
+                    <NavLink to="/manage">Manage</NavLink>
+                  </li>
+                  <li>
+                    <NavLink to="/Daily">Daily</NavLink>
+                  </li>
+                  <li onClick={handleLogout} className="logout">
+                    Logout
+                  </li>
+                </>
+              )
+            ) : (
+              <li>
+                <NavLink to="/login">Login</NavLink>
+              </li>
+            )}
+          </ul>
+        </div>
       </div>
     </nav>
   );

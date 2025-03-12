@@ -119,6 +119,7 @@ import { Navigation, Pagination, Autoplay } from "swiper/modules";
 import AddEmployee from "./AddEmployee.js"; // Import the new component
 import "./EmployeeManagement.css"; // Import CSS for styling
 
+
 const EmployeeManagement = () => {
   const [employees, setEmployees] = useState([]);
   const [employeeLogs, setEmployeeLogs] = useState([]);
