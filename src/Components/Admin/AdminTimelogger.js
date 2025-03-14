@@ -1,5 +1,24 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import {
+  Typography,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  TextField,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TablePagination,
+  Paper,
+  CircularProgress,
+} from "@mui/material";
+import "./AdminTimeLogger.css";
 
 const AdminTimeLogger = () => {
   const [employees, setEmployees] = useState([]);
@@ -10,6 +29,9 @@ const AdminTimeLogger = () => {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
 
   const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:6060";
 
@@ -35,6 +57,10 @@ const AdminTimeLogger = () => {
       fetchLogs();
     }
   }, [selectedEmployee]);
+  useEffect(() => {
+    setPage(0);
+  }, [selectedEmployee]);
+  
 
   const fetchLogs = async () => {
     setLoading(true);
@@ -69,7 +95,7 @@ const AdminTimeLogger = () => {
       alert("Please select an employee, date, and log time.");
       return;
     }
-
+    
     if (!logTypeMap[logType]) {
       console.error("Invalid logType received:", logType);
       return;
@@ -83,7 +109,7 @@ const AdminTimeLogger = () => {
     };
 
     try {
-      const response = await axios.put(`${API_BASE_URL}/logs`, requestData);
+      await axios.put(`${API_BASE_URL}/logs`, requestData);
       alert("Log updated successfully!");
       fetchLogs();
     } catch (err) {
@@ -92,128 +118,174 @@ const AdminTimeLogger = () => {
     }
   };
 
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+  
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0); // Reset to first page when changing rows per page
+  };
+  
+  const paginatedLogs = logs.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+
   return (
-    <div>
-      <h1 className="text-xl font-bold mb-4">Admin Time Logger</h1>
+    <div className="adminLogger">
+      <Typography variant="h4" gutterBottom className="text-xl font-bold mb-4">
+        Admin Time Logger
+      </Typography>
 
       {/* Error Message */}
-      {error && <p className="text-red-500">{error}</p>}
+      {error && <Typography color="error">{error}</Typography>}
 
-      <div className="space-y-4 adminLogger">
+      <div className="space-y-4 employelogsforadmin">
         {/* Employee Dropdown */}
-        <select
-          value={selectedEmployee}
-          onChange={(e) => setSelectedEmployee(e.target.value)}
-          className="border p-2 w-full"
-        >
-          <option value="">Select Employee</option>
-          {employees.map((emp) => (
-            <option key={emp._id} value={emp.name}>{emp.name}</option>
-          ))}
-        </select>
+        <FormControl fullWidth className="border p-2">
+          <InputLabel>Select Employee</InputLabel>
+          <Select
+            value={selectedEmployee}
+            onChange={(e) => setSelectedEmployee(e.target.value)}
+          >
+            <MenuItem value="">Select Employee</MenuItem>
+            {employees.map((emp) => (
+              <MenuItem key={emp._id} value={emp.name}>
+                {emp.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
 
         {/* Date Picker */}
-        <input
+        <TextField
           type="date"
           value={selectedDate}
           onChange={(e) => setSelectedDate(e.target.value)}
-          className="border p-2 w-full"
+          fullWidth
+          className="border p-2"
         />
 
         {/* Log Type Dropdown */}
-        <select
-          value={logType}
-          onChange={(e) => setLogType(e.target.value)}
-          className="border p-2 w-full"
-        >
-          {Object.keys(logTypeMap).map((type) => (
-            <option key={type} value={type}>{type}</option>
-          ))}
-        </select>
+        <FormControl fullWidth className="border p-2">
+          <InputLabel>Log Type</InputLabel>
+          <Select
+            value={logType}
+            onChange={(e) => setLogType(e.target.value)}
+          >
+            {Object.keys(logTypeMap).map((type) => (
+              <MenuItem key={type} value={type}>
+                {type}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
 
         {/* Time Picker */}
-        <input
+        <TextField
           type="time"
           value={logTime}
           onChange={(e) => setLogTime(e.target.value)}
-          className="border p-2 w-full"
+          fullWidth
+          className="border p-2"
         />
 
         {/* Submit Button */}
-        <button
-          onClick={handleSubmit}
-          className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-        >
+        <Button variant="contained" color="primary" onClick={handleSubmit}>
           Submit
-        </button>
+        </Button>
       </div>
 
-      {/* Loading State */}
-      {loading && <p className="mt-4 text-center">Loading...</p>}
+      {/* Loading Indicator */}
+      {loading && (
+        <div className="mt-4 text-center">
+          <CircularProgress />
+        </div>
+      )}
 
       {/* Display Logs */}
       {logs.length > 0 && (
         <>
-          <h2 className="text-lg font-bold mt-6">Logs for {selectedEmployee}</h2>
-          <div className="table-wrap overflow-x-auto">
-            <table className="w-full border mt-2 table-auto">
-              <thead className="thead-primary bg-gray-200">
-                <tr>
-                  {[
-                    "Date", "Login", "Dinner Break Start", "Dinner Break End", "Logout",
-                    "Short Break 1 Start", "Short Break 1 End", "Short Break 2 Start", "Short Break 2 End",
-                    "Short Break 3 Start", "Short Break 3 End", "Total Login Hrs", "Break Duration",
-                    "Actual Login Hrs", "Admin Hrs"
-                  ].map((header) => (
-                    <th key={header} className="border px-2 py-1">{header}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-  {logs.map((log) => (
-    <React.Fragment key={log._id}>
-      <tr>
-        <td className="border px-2 py-1">{log.date}</td>
-        <td className="border px-2 py-1">{log.loginTime || "-"}</td>
-        <td className="border px-2 py-1">{log.dinnerStartTime || "-"}</td>
-        <td className="border px-2 py-1">{log.dinnerEndTime || "-"}</td>
-        <td className="border px-2 py-1">{log.logoutTime || "-"}</td>
-        <td className="border px-2 py-1">{log.shortBreak1Start || "-"}</td>
-        <td className="border px-2 py-1">{log.shortBreak1End || "-"}</td>
-        <td className="border px-2 py-1">{log.shortBreak2Start || "-"}</td>
-        <td className="border px-2 py-1">{log.shortBreak2End || "-"}</td>
-        <td className="border px-2 py-1">{log.shortBreak3Start || "-"}</td>
-        <td className="border px-2 py-1">{log.shortBreak3End || "-"}</td>
-        <td className="border px-2 py-1">{log.totalLoginHours || "-"}</td>
-        <td className="border px-2 py-1">{log.breakDuration || "-"}</td>
-        <td className="border px-2 py-1">{log.actualLoginHours || "-"}</td>
-        <td className="border px-2 py-1">{log.adminLoginHours || "-"}</td>
-      </tr>
+          <Typography variant="h6" className="text-lg font-bold mt-6">
+            Logs for {selectedEmployee}
+          </Typography>
 
-      {/* ✅ Display Change History */}
+          <Paper className="table-wrap">
+            <TableContainer>
+              <Table className="table">
+                <TableHead className="thead-primary">
+                  <TableRow>
+                    {[
+                      "Date", "Login", "Dinner Break Start", "Dinner Break End", "Logout",
+                      "Short Break 1 Start", "Short Break 1 End", "Short Break 2 Start", "Short Break 2 End",
+                      "Short Break 3 Start", "Short Break 3 End", "Total Login Hrs", "Break Duration",
+                      "Actual Login Hrs", "Admin Hrs"
+                    ].map((header) => (
+                      <TableCell key={header}>{header}</TableCell>
+                    ))}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+  {paginatedLogs.map((log) => (
+    <React.Fragment key={log._id}>
+      <TableRow>
+        <TableCell>{log.date}</TableCell>
+        <TableCell>{log.loginTime || "-"}</TableCell>
+        <TableCell>{log.dinnerStartTime || "-"}</TableCell>
+        <TableCell>{log.dinnerEndTime || "-"}</TableCell>
+        <TableCell>{log.logoutTime || "-"}</TableCell>
+        <TableCell>{log.shortBreak1Start || "-"}</TableCell>
+        <TableCell>{log.shortBreak1End || "-"}</TableCell>
+        <TableCell>{log.shortBreak2Start || "-"}</TableCell>
+        <TableCell>{log.shortBreak2End || "-"}</TableCell>
+        <TableCell>{log.shortBreak3Start || "-"}</TableCell>
+        <TableCell>{log.shortBreak3End || "-"}</TableCell>
+        <TableCell>{log.totalLoginHours || "-"}</TableCell>
+        <TableCell>{log.breakDuration || "-"}</TableCell>
+        <TableCell>{log.actualLoginHours || "-"}</TableCell>
+        <TableCell>{log.adminLoginHours || "-"}</TableCell>
+      </TableRow>
+
+      {/* ✅ Display Change History Below Each Log Row */}
       {log.modifications?.length > 0 && (
-        <tr>
-          <td colSpan="15" className="border px-2 py-1 bg-gray-100">
-            <strong>Change History:</strong>
+        <TableRow>
+          <TableCell colSpan={15} className="bg-gray-100">
+            <Typography variant="subtitle2" gutterBottom>
+              <strong>Change History:</strong>
+            </Typography>
             <ul className="text-sm list-disc pl-4">
               {log.modifications.map((mod, index) => (
                 <li key={index}>
-                  🔹 <span className="font-semibold">{mod.field}</span>: 
-                  <span className="text-red-500"> ⛔ {mod.oldTime} </span> → 
-                  <span className="text-green-500"> ✅ {mod.newTime} </span> 
-                  <span className="text-gray-500 text-xs"> (Modified on {new Date(mod.modifiedAt).toLocaleString()})</span>
+                  🔹 <strong>{mod.field}</strong>: 
+                  <span style={{ color: "red", marginLeft: "5px" }}>⛔ {mod.oldTime} </span> → 
+                  <span style={{ color: "green", marginLeft: "5px" }}>✅ {mod.newTime} </span> 
+                  <span style={{ color: "gray", fontSize: "12px", marginLeft: "5px" }}>
+                    (Modified on {new Date(mod.modifiedAt).toLocaleString()})
+                  </span>
                 </li>
               ))}
             </ul>
-          </td>
-        </tr>
+          </TableCell>
+        </TableRow>
       )}
     </React.Fragment>
   ))}
-</tbody>
+</TableBody>
 
-            </table>
-          </div>
+{/* ✅ Add Pagination Below the Table */}
+<TablePagination
+  rowsPerPageOptions={[10, 25, 50]}
+  component="div"
+  count={logs.length}
+  rowsPerPage={rowsPerPage}
+  page={page}
+  onPageChange={handleChangePage}
+  onRowsPerPageChange={handleChangeRowsPerPage}
+  className="table-pagination"
+/>
+
+              
+              </Table>
+            </TableContainer>
+          </Paper>
         </>
       )}
     </div>

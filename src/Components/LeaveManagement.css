@@ -1,5 +1,5 @@
 .leave-management {
-    max-width: 800px;
+    /* max-width: 800px; */
     margin: auto;
     padding: 20px;
     background: #fff;
@@ -44,14 +44,15 @@
   }
   
   .status-accepted {
-    color: green;
-    font-weight: bold;
+    color: green !important;
+    font-weight: bold !important;
   }
   
   .status-rejected {
-    color: red;
-    font-weight: bold;
+    color: red !important;
+    font-weight: bold !important;
   }
+  
   
   .edit-btn, .delete-btn {
     padding: 5px 10px;

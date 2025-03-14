@@ -1,10 +1,22 @@
 
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import {
+  Paper,
+  TextField,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Button,
+  Typography,
+  Box,
+} from "@mui/material";
 import "./LeaveRequest.css";
 
 const LeaveRequest = () => {
-  const [email, setEmail] = useState(""); // Store email instead of name
+  const [email, setEmail] = useState("");
   const [requestDate, setRequestDate] = useState("");
   const [requestTime, setRequestTime] = useState("");
   const [leaveType, setLeaveType] = useState("Full Day Off");
@@ -13,16 +25,18 @@ const LeaveRequest = () => {
   const [specificTime, setSpecificTime] = useState("");
   const [leaveReason, setLeaveReason] = useState("");
   const [compensationOption, setCompensationOption] = useState("Deduct from Pay");
+  const navigate = useNavigate();
+
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
     if (storedUser) {
-      setEmail(storedUser.email); // Set user email
+      setEmail(storedUser.email);
     }
 
     const options = { timeZone: "America/Chicago", year: "numeric", month: "2-digit", day: "2-digit" };
     const timeOptions = { timeZone: "America/Chicago", hour12: true, hour: "2-digit", minute: "2-digit" };
-    
+
     setRequestDate(new Intl.DateTimeFormat("en-US", options).format(new Date()));
     setRequestTime(new Intl.DateTimeFormat("en-US", timeOptions).format(new Date()));
   }, []);
@@ -37,7 +51,7 @@ const LeaveRequest = () => {
 
     try {
       await axios.post(`${API_BASE_URL}/leave-requests`, {
-        email, // Use email instead of employeeName
+        email,
         requestDate,
         requestTime,
         leaveType,
@@ -49,8 +63,8 @@ const LeaveRequest = () => {
       });
 
       alert("Leave request submitted successfully!");
+      navigate("/manage");
 
-      // Reset form inputs after successful submission
       setLeaveType("Full Day Off");
       setFromDate("");
       setToDate("");
@@ -65,54 +79,103 @@ const LeaveRequest = () => {
   };
 
   return (
-    <div className="leave-request">
-      <h2>Leave Request Form</h2>
+    <Box
+      sx={{
+        minHeight: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        background: "linear-gradient(to right, #00c6ff, #0072ff)",
+        padding: 3,
+      }}
+    >
+      <Paper elevation={5} sx={{ padding: 4, borderRadius: 3, maxWidth: 500, width: "100%" }}>
+        <Typography variant="h5" align="center" gutterBottom>
+          Leave Request Form
+        </Typography>
 
-      <label>Email:</label>
-      <input type="text" value={email} readOnly /> {/* Show email instead of name */}
+        <TextField label="Email" value={email} fullWidth disabled margin="normal" />
 
-      <label>Request Date:</label>
-      <input type="text" value={requestDate} readOnly />
+        <TextField label="Request Date" value={requestDate} fullWidth disabled margin="normal" />
 
-      <label>Request Time:</label>
-      <input type="text" value={requestTime} readOnly />
+        <TextField label="Request Time" value={requestTime} fullWidth disabled margin="normal" />
 
-      <label>Type of Leave:</label>
-      <select value={leaveType} onChange={(e) => setLeaveType(e.target.value)}>
-        <option>Full Day Off</option>
-        <option>Multiple Days Off</option>
-        <option>Arriving Late</option>
-        <option>Leaving Early</option>
-      </select>
+        <FormControl fullWidth margin="normal">
+          <InputLabel>Type of Leave</InputLabel>
+          <Select value={leaveType} onChange={(e) => setLeaveType(e.target.value)}>
+            <MenuItem value="Full Day Off">Full Day Off</MenuItem>
+            <MenuItem value="Multiple Days Off">Multiple Days Off</MenuItem>
+            <MenuItem value="Arriving Late">Arriving Late</MenuItem>
+            <MenuItem value="Leaving Early">Leaving Early</MenuItem>
+          </Select>
+        </FormControl>
 
-      {(leaveType === "Full Day Off" || leaveType === "Multiple Days Off") && (
-        <>
-          <label>From Date:</label>
-          <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
-          
-          <label>To Date:</label>
-          <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} />
-        </>
-      )}
+        {(leaveType === "Full Day Off" || leaveType === "Multiple Days Off") && (
+          <>
+            <TextField
+              label="From Date"
+              type="date"
+              value={fromDate}
+              onChange={(e) => setFromDate(e.target.value)}
+              fullWidth
+              margin="normal"
+              InputLabelProps={{ shrink: true }}
+            />
 
-      {(leaveType === "Arriving Late" || leaveType === "Leaving Early") && (
-        <>
-          <label>Specify Time:</label>
-          <input type="time" value={specificTime} onChange={(e) => setSpecificTime(e.target.value)} />
-        </>
-      )}
+            <TextField
+              label="To Date"
+              type="date"
+              value={toDate}
+              onChange={(e) => setToDate(e.target.value)}
+              fullWidth
+              margin="normal"
+              InputLabelProps={{ shrink: true }}
+            />
+          </>
+        )}
 
-      <label>Reason for Request:</label>
-      <textarea value={leaveReason} onChange={(e) => setLeaveReason(e.target.value)} placeholder="Enter reason here..." />
+        {(leaveType === "Arriving Late" || leaveType === "Leaving Early") && (
+          <TextField
+            label="Specify Time"
+            type="time"
+            value={specificTime}
+            onChange={(e) => setSpecificTime(e.target.value)}
+            fullWidth
+            margin="normal"
+            InputLabelProps={{ shrink: true }}
+          />
+        )}
 
-      <label>Compensation Option:</label>
-      <select value={compensationOption} onChange={(e) => setCompensationOption(e.target.value)}>
-        <option>Deduct from Pay</option>
-        <option>Make up Lost Time</option>
-      </select>
+        <TextField
+          label="Reason for Leave"
+          value={leaveReason}
+          onChange={(e) => setLeaveReason(e.target.value)}
+          fullWidth
+          margin="normal"
+          multiline
+          rows={3}
+          placeholder="Enter reason here..."
+        />
 
-      <button onClick={handleSubmit}>Submit Request</button>
-    </div>
+        <FormControl fullWidth margin="normal">
+          <InputLabel>Compensation Option</InputLabel>
+          <Select value={compensationOption} onChange={(e) => setCompensationOption(e.target.value)}>
+            <MenuItem value="Deduct from Pay">Deduct from Pay</MenuItem>
+            <MenuItem value="Make up Lost Time">Make up Lost Time</MenuItem>
+          </Select>
+        </FormControl>
+
+        <Button
+          variant="contained"
+          color="primary"
+          fullWidth
+          sx={{ mt: 2, fontSize: "16px" }}
+          onClick={handleSubmit}
+        >
+          Submit Request
+        </Button>
+      </Paper>
+    </Box>
   );
 };
 

@@ -198,6 +198,7 @@ const EmployeeManagement = () => {
 
       {/* Employee Carousel */}
       <Swiper
+        key={employees.length} // Ensures Swiper reinitializes when employees change
         modules={[Navigation, Pagination, Autoplay]}
         spaceBetween={20}
         slidesPerView={5}
@@ -209,7 +210,7 @@ const EmployeeManagement = () => {
       >
         {employees.map((employee) => (
           <SwiperSlide key={employee._id} className="employee-card">
-            <div className="profile-pic">
+            <div className="emloyees-pic">
               {employee.profilePic ? (
                 <img src={employee.profilePic} alt={employee.name} />
               ) : (
