@@ -99,7 +99,7 @@
     }
   }
   
-  @media (max-width: 600px) {
+  /* @media (max-width: 600px) {
     .menu-icon {
       display: block;
       cursor: pointer;
@@ -129,4 +129,83 @@
       margin-right: unset;
       margin-top: 22px;
     }
+  } */
+  @media (max-width: 600px) {
+    .menu-icon {
+      display: block;
+      cursor: pointer;
+      font-size: 28px;
+      z-index: 1001; /* Ensure it's above other elements */
+    }
+  
+    .nav-elements {
+      position: fixed; /* Fixed so it doesn't get covered */
+      right: 0;
+      top: 60px;
+      background-color: #222; /* Darker shade for better contrast */
+      width: 270px;
+      height: calc(100vh - 60px);
+      display: none; /* Hide by default */
+      flex-direction: column;
+      align-items: start;
+      padding: 20px;
+      box-shadow: -2px 0 5px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s ease-in;
+      z-index: 1000; /* Ensures menu stays above content */
+    }
+  
+    .nav-elements.active {
+      display: flex; /* Show menu when active */
+      justify-content: flex-start;
+    }
+  
+    .nav-elements ul {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+      margin: 0;
+    }
+  
+    .nav-elements ul li {
+      width: 100%;
+      padding: 12px 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+  
+    .nav-elements ul li:last-child {
+      border-bottom: none;
+    }
+  
+    .nav-elements ul a,
+    .logout {
+      font-size: 18px;
+      font-weight: 500;
+      color: #ffffff;
+      text-decoration: none;
+      display: block;
+      padding: 10px;
+      width: 100%;
+    }
+  
+    .nav-elements ul a:hover,
+    .logout:hover {
+      background-color: #444;
+      color: #ffcc00;
+    }
+  
+    /* Ensure Navbar Stays on Top */
+    .navbar {
+      position: fixed;
+      width: 100%;
+      top: 0;
+      left: 0;
+      z-index: 1002; /* Higher than menu */
+    }
+  
+    /* Ensure content does not go under the navbar */
+    body {
+      padding-top: 60px;
+    }
   }
+  

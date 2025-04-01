@@ -24,6 +24,7 @@ const AdminTimeLogger = () => {
   const [employees, setEmployees] = useState([]);
   const [selectedEmployee, setSelectedEmployee] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
+  const [searchDate, setSearchDate] = useState("");
   const [logType, setLogType] = useState("Login Time");
   const [logTime, setLogTime] = useState("");
   const [logs, setLogs] = useState([]);
@@ -56,19 +57,29 @@ const AdminTimeLogger = () => {
     if (selectedEmployee) {
       fetchLogs();
     }
-  }, [selectedEmployee]);
+  }, [selectedEmployee, searchDate]);
   useEffect(() => {
     setPage(0);
-  }, [selectedEmployee]);
+  }, [selectedEmployee, searchDate]);
   
-
   const fetchLogs = async () => {
     setLoading(true);
     try {
       const response = await axios.get(`${API_BASE_URL}/logs`, {
         params: { employeeName: selectedEmployee },
       });
-      setLogs(response.data);
+      let filteredLogs = response.data;
+
+      if (searchDate) {
+        filteredLogs = filteredLogs.filter((log) => {
+          const logDate = new Date(log.date).toISOString().split("T")[0]; // Convert to YYYY-MM-DD
+          return logDate === searchDate;
+        });
+      }
+
+      filteredLogs.sort((a, b) => new Date(b.date) - new Date(a.date));
+  
+      setLogs(filteredLogs); 
     } catch (err) {
       setError("Error fetching logs");
       console.error("Error fetching logs:", err);
@@ -76,6 +87,7 @@ const AdminTimeLogger = () => {
       setLoading(false);
     }
   };
+
 
   const logTypeMap = {
     "Login Time": "loginTime",
@@ -121,6 +133,12 @@ const AdminTimeLogger = () => {
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
+
+  const handleDateChange = (e) => {
+    const selected = e.target.value;
+    setSelectedDate(selected);
+    setSearchDate(selected); // ✅ Update search date for filtering logs
+  };
   
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
@@ -159,7 +177,7 @@ const AdminTimeLogger = () => {
         <TextField
           type="date"
           value={selectedDate}
-          onChange={(e) => setSelectedDate(e.target.value)}
+          onChange={handleDateChange}
           fullWidth
           className="border p-2"
         />
@@ -273,7 +291,7 @@ const AdminTimeLogger = () => {
 {/* ✅ Add Pagination Below the Table */}
 <TablePagination
   rowsPerPageOptions={[10, 25, 50]}
-  component="div"
+  component="tfoot"
   count={logs.length}
   rowsPerPage={rowsPerPage}
   page={page}

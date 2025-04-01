@@ -3,6 +3,9 @@ import axios from "axios";
 import "./timeLogger.css";
 import Clock from "./Clock.js";
 import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Paper } from "@mui/material";
+import Polygonmaskparticle from "./Polygonmaskparticle.js";
+import AnimatedBackground from "./AnimatedBackground.js";
+
 
 
 const columns = [
@@ -32,6 +35,8 @@ const Timelogger = () => {
   const [selectedDate, setSelectedDate] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [searchDate, setSearchDate] = useState(""); 
+
   const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:6060";
 
   useEffect(() => {
@@ -45,7 +50,7 @@ const Timelogger = () => {
     if (employeeName) {
       fetchLogs();
     }
-  }, [employeeName]);
+  }, [employeeName, searchDate]);
 
   useEffect(() => {
     const updateDate = () => {
@@ -61,11 +66,28 @@ const Timelogger = () => {
       const response = await axios.get(`${API_BASE_URL}/logs`, {
         params: { employeeName },
       });
-      setLogs(response.data);
+  
+      let filteredLogs = response.data;
+  
+      // Convert date to YYYY-MM-DD format before comparing
+      if (searchDate) {
+        filteredLogs = filteredLogs.filter(log => {
+          const logDate = new Date(log.date).toISOString().split("T")[0]; // Convert to YYYY-MM-DD
+          return logDate === searchDate;
+        });
+      }
+  
+      // Sort logs by date (newest first)
+      filteredLogs.sort((a, b) => new Date(b.date) - new Date(a.date));
+  
+      setLogs(filteredLogs);
     } catch (error) {
       console.error("Error fetching logs:", error);
     }
   };
+  
+  
+  
 
   const handleSubmit = async () => {
     if (!logTime || !selectedDate) {
@@ -108,7 +130,12 @@ const Timelogger = () => {
   };
 
   return (
+    <div>
+      {/* <Polygonmaskparticle /> */}
+      <AnimatedBackground/>
+    
     <div className="p-4">
+      
       <h1 className="text-xl font-bold">Welcome, {employeeName} 👋</h1>
       <div className="space-y-4 adminLogger">
         <input type="text" value={employeeName} readOnly className="border p-2 w-full bg-gray-100" />
@@ -133,8 +160,17 @@ const Timelogger = () => {
       </div>
 
       <h2 className="text-lg font-bold mt-6">Time Logs</h2>
-          <Paper sx={{ width: "100%", overflow: "hidden" }} className="table-wrap">
-      <TableContainer sx={{ maxHeight: 440 }}>
+      <div>
+      <input
+  type="date"
+  value={searchDate}
+  onChange={(e) => setSearchDate(e.target.value)}
+  className="border p-2 w-full"
+/>
+
+      </div>
+      <Paper sx={{ width: "100%", overflow: "hidden" }} className="table-wrap">
+      <TableContainer sx={{ maxHeight: 570 }}>
         <Table stickyHeader aria-label="time logs table" className="table">
           <TableHead className="thead-primary" >
             <TableRow>
@@ -158,20 +194,21 @@ const Timelogger = () => {
 
                 {log.modifications?.length > 0 && (
                   <TableRow>
-                    <TableCell colSpan={columns.length} className="border px-2 py-1 bg-gray-100">
-                      <strong>Change History:</strong>
-                      <ul className="text-sm list-disc pl-4">
-                        {log.modifications.map((mod, index) => (
-                          <li key={index}>
-                            🔹 <span className="font-semibold">{mod.field}</span>: 
-                            <span className="text-red-500"> ⛔ {mod.oldTime} </span> → 
-                            <span className="text-green-500"> ✅ {mod.newTime} </span> 
-                            <span className="text-gray-500 text-xs"> (Modified on {new Date(mod.modifiedAt).toLocaleString()})</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </TableCell>
-                  </TableRow>
+                  <TableCell colSpan={columns.length} className="border px-2 py-1 bg-gray-100">
+                    <strong>Change History:</strong>
+                    <ul className="changeHistory text-sm list-disc pl-4">
+                      {log.modifications.map((mod, index) => (
+                        <li key={index}>
+                          🔹 <span className="font-semibold">{mod.field}</span>: 
+                          <span className="text-red-500"> ⛔ {mod.oldTime} </span> → 
+                          <span className="text-green-500"> ✅ {mod.newTime} </span> 
+                          <span className="text-gray-500 text-xs"> (Modified on {new Date(mod.modifiedAt).toLocaleString()})</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </TableCell>
+                </TableRow>
+                
                 )}
               </React.Fragment>
             ))}
@@ -189,7 +226,8 @@ const Timelogger = () => {
       />
     </Paper>
 
-      <Clock />
+    <Clock />
+    </div>
     </div>
   );
 };

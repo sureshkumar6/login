@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ParticlesBackground from "./ParticlesBackground.js"; 
+// import Polygonmaskparticle from "./Polygonmaskparticle.js";
 import "./DoubleSliderAuth.css";
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:6060";
@@ -85,6 +86,8 @@ const DoubleSliderAuth = () => {
     
     <div className="auth-wrapper">
       <ParticlesBackground />
+      {/* <Polygonmaskparticle /> */}
+      
     <div className={`auth-container ${isSignUp ? "right-panel-active" : ""}`} id="auth-container">
       {/* Signup Form */}
       <div className="form-container sign-up-container">

@@ -854,21 +854,34 @@ app.get("/announcements", async (req, res) => {
     const announcements = await Announcement.find().sort({ date: -1 });
     res.json(announcements);
   } catch (error) {
-    res.status(500).json({ error: "Error fetching announcements" });
+    res.status(500).json({ message: "Error fetching announcements", error });
   }
 });
 
 // Add a new Announcement
 app.post("/announcements", async (req, res) => {
+  const { message } = req.body;
+  if (!message) return res.status(400).json({ message: "Message is required" });
+
   try {
-    const newAnnouncement = new Announcement(req.body);
+    const newAnnouncement = new Announcement({ message, date: new Date() });
     await newAnnouncement.save();
-    res.status(201).json({ message: "Announcement added!" });
+    res.status(201).json(newAnnouncement);
   } catch (error) {
-    res.status(500).json({ error: "Error adding announcement" });
+    res.status(500).json({ message: "Error saving announcement", error });
   }
 });
+// 📌 Delete an announcement (Optional)
+app.delete("/announcements/:id", async (req, res) => {
+  try {
+    const deletedAnnouncement = await Announcement.findByIdAndDelete(req.params.id);
+    if (!deletedAnnouncement) return res.status(404).json({ message: "Announcement not found" });
 
+    res.json({ message: "Announcement deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Error deleting announcement", error });
+  }
+});
 ///
 // 🔹 Fetch all employees
 app.get("/employees", async (req, res) => {

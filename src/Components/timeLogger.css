@@ -68,6 +68,12 @@
     background: #f9f9f9;
 }
 
+.changeHistory {
+    list-style-type: none;
+    padding-left: 0; /* Remove default padding */
+}
+
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .table thead th {

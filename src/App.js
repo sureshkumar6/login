@@ -55,8 +55,8 @@ function App() {
 
           {/* Private Admin Routes - Only admins can access */}
           <Route element={<AdminComponent />}>
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/admin/employees" element={<EmployeeManagement />} />
+            <Route path="/admin" element={<EmployeeManagement />} />
+            {/* <Route path="/admin/employees" element={<EmployeeManagement />} /> */}
             <Route path="/admin/leaves" element={<ManageLeaves />} />
             <Route path="/admin/timelogger" element={<AdminTimelogger />} />
           </Route>

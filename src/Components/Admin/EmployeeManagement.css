@@ -1,5 +1,9 @@
 .container {
-    max-width: 90%;
+    background-image: url("https://img.freepik.com/free-photo/abstract-luxury-black-gradient-with-border-vignette-background-studio-backdrop-well-use-as-backdrop-background-studio-background-gradient-frame_1258-71708.jpg?uid=R183177212&ga=GA1.1.511037142.1743007293&semt=ais_hybrid");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    max-width: 100%;
     margin: auto;
     text-align: center;
   }
@@ -93,4 +97,8 @@
     font-size: 13px;
     color: #666;
   }
-  
+
+  .charts{
+    display: flex;
+    flex-direction: row;
+  }

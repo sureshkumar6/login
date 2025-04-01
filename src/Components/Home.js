@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
+import EmployeeLoginChart from "./EmployeeLoginChart.js";
 import "./Home.css";
 
 const translations = [
@@ -24,35 +26,53 @@ const translations = [
   }
 ];
 
-const Home = ({ user }) => {
+const Home = () => {
+  const [employeeName, setEmployeeName] = useState("");
   const [shloka, setShloka] = useState({});
   const [employeeStatus, setEmployeeStatus] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
+  const [workSummary, setWorkSummary] = useState([]);
+  const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:6060";
 
   useEffect(() => {
-    // Pick a random shloka
-    setShloka(translations[Math.floor(Math.random() * translations.length)]);
-
-    // Fetch real-time employee status
-    fetchEmployeeStatus();
-
-    // Fetch announcements
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    if (storedUser) {
+      setEmployeeName(storedUser.name);
+    }
+    
     fetchAnnouncements();
+    setDailyShloka();
+    fetchEmployeeStatus();
+    fetchAnnouncements();
+    fetchWorkSummary();
   }, []);
+
+  const setDailyShloka = () => {
+    const today = new Date().toISOString().split("T")[0];
+    const storedShloka = JSON.parse(localStorage.getItem("dailyShloka"));
+
+    if (storedShloka && storedShloka.date === today) {
+      setShloka(storedShloka.shloka);
+    } else {
+      const newShloka = translations[Math.floor(Math.random() * translations.length)];
+      localStorage.setItem("dailyShloka", JSON.stringify({ date: today, shloka: newShloka }));
+      setShloka(newShloka);
+    }
+  };
 
   const fetchEmployeeStatus = async () => {
     try {
-      const response = await fetch("http://localhost:6060/daily-activity");
+      const response = await fetch(`${API_BASE_URL}/daily-activity`);
       const data = await response.json();
+      // console.log(data)
 
-      // Process data to get employees' current status
       const statusMap = {};
-      const today = new Date().toISOString().split("T")[0]; // Get today's date in YYYY-MM-DD
+      const today = new Date().toISOString().split("T")[0];
 
       data.forEach((entry) => {
         if (entry.date === today) {
           statusMap[entry.email] = {
-            name: entry.email.split("@")[0], // Extract name from email
+            name: entry.email.split("@")[0],
             work: entry.work,
             status: entry.endTime ? "Logged Out" : "Working"
           };
@@ -67,17 +87,55 @@ const Home = ({ user }) => {
 
   const fetchAnnouncements = async () => {
     try {
-      const response = await fetch("http://localhost:6060/announcements");
-      const data = await response.json();
-      setAnnouncements(data);
+      const response = await axios.get(`${API_BASE_URL}/announcements`);
+      console.log("announcements response:", response.data); // This will correctly log the data
+      setAnnouncements(response.data); // ✅ Correct way to update state
     } catch (error) {
       console.error("Error fetching announcements:", error);
     }
   };
+  // Fetch daily work summary
+  const fetchWorkSummary = async () => {
+    try {
+      const storedUser = JSON.parse(localStorage.getItem("user"));
+      const employeeEmail = storedUser?.email; // Get employee email from local storage
+  
+      if (!employeeEmail) {
+        console.warn("No employee email found in local storage.");
+        return;
+      }
+  
+      // console.log("Fetching work summary for:", employeeEmail);
+  
+      const response = await axios.get(`${API_BASE_URL}/daily-activity`);
+      // console.log("API Response:", response.data);
+  
+      const data = response.data;
+      const today = new Date().toISOString().split("T")[0];
+  
+      // Filter activities for the logged-in employee and today's date
+      const filteredActivities = data.filter((activity) => {
+        const isMatchingEmail = activity.email  === employeeEmail;
+        const isMatchingDate = activity.date === today;
+  
+        // console.log("Checking activity:", activity);
+        // console.log("Email match:", isMatchingEmail, "| Date match:", isMatchingDate);
+  
+        return isMatchingEmail && isMatchingDate;
+      });
+  
+      // console.log("Filtered Activities:", filteredActivities);
+  
+      setWorkSummary(filteredActivities);
+    } catch (error) {
+      console.error("Error fetching work summary:", error);
+    }
+  };
+  
 
   return (
     <div className="home-container">
-      <h1>Hello, {user?.name} 👋</h1>
+      <h1>Hello, {employeeName} 👋</h1>
 
       {/* Bhagavad Gita Shloka */}
       <div className="shloka-box">
@@ -89,31 +147,47 @@ const Home = ({ user }) => {
       {/* Real-time Employee Status */}
       <div className="status-section">
         <h2>👥 Employee Status</h2>
-        {employeeStatus.length > 0 ? (
-          employeeStatus.map((emp, index) => (
-            <div key={index} className={`employee-status ${emp.status.toLowerCase()}`}>
-              <p><strong>{emp.name}</strong> - {emp.status} ({emp.work})</p>
-            </div>
-          ))
+          <div className="chart-section">
+        {/* <h2>📊 Your Work Summary</h2> */}
+        {employeeName ? (
+          <EmployeeLoginChart selectedEmployee={employeeName} isAdmin={false}/>
         ) : (
-          <p>No employees working today.</p>
+          <p>Loading chart...</p>
         )}
+      </div>
+      <div>
+      <div className="work-summary">
+        <h2>📅 Date: {new Date().toLocaleDateString()}</h2>
+        <h3>Today I Worked On:</h3>
+        {workSummary.length > 0 ? (
+          <ul>
+            {workSummary.map((activity, index) => (
+              <li key={index}>
+                ➝ Worked on "{activity.work}" "{activity.subWorkType}"
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No work logged today.</p>
+        )}
+      </div>
+      </div>
       </div>
 
       {/* Announcements */}
       <div className="announcements">
-        <h2>📢 Announcements</h2>
-        {announcements.length > 0 ? (
-          announcements.map((announcement, index) => (
-            <div key={index} className="announcement-item">
-              <p>{announcement.message}</p>
-              <span>{new Date(announcement.date).toLocaleDateString()}</span>
-            </div>
-          ))
-        ) : (
-          <p>No announcements today.</p>
-        )}
-      </div>
+    <h2>📢 Announcements</h2>
+    {announcements.length > 0 ? (
+      announcements.map((announcement, index) => (
+        <div key={index} className="announcement-item">
+          <p>{announcement.message}</p>
+          <span>{new Date(announcement.date).toLocaleDateString()}</span>
+        </div>
+      ))
+    ) : (
+      <p>No announcements today.</p>
+    )}
+  </div>
     </div>
   );
 };

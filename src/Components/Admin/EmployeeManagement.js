@@ -117,6 +117,10 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 import { Navigation, Pagination, Autoplay } from "swiper/modules";
 import AddEmployee from "./AddEmployee.js"; // Import the new component
+import Announcements from "./Announcements.js";
+import EmployeeLoginChart from "../EmployeeLoginChart.js";
+import AnimatedBackground from "../AnimatedBackground.js";
+import { Button } from "@mui/material";
 import "./EmployeeManagement.css"; // Import CSS for styling
 
 
@@ -127,6 +131,7 @@ const EmployeeManagement = () => {
   const [leaveRequests, setLeaveRequests] = useState([]);
   const [selectedDate, setSelectedDate] = useState("");
   const [showAddEmployee, setShowAddEmployee] = useState(false); // State to toggle modal
+  const [showAnnouncements, setShowAnnouncements] = useState(false);
 
   const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:6060";
 
@@ -191,12 +196,12 @@ const EmployeeManagement = () => {
 
   return (
     <div className="container">
+       {/* <AnimatedBackground/> */}
       <h2 className="title">Employee Management</h2>
-
-      {/* Add Employee Button */}
-      <button className="add-employee-btn" onClick={() => setShowAddEmployee(true)}>Add Employee</button>
-
       {/* Employee Carousel */}
+      <div>
+
+      
       <Swiper
         key={employees.length} // Ensures Swiper reinitializes when employees change
         modules={[Navigation, Pagination, Autoplay]}
@@ -226,11 +231,28 @@ const EmployeeManagement = () => {
           </SwiperSlide>
         ))}
       </Swiper>
-
+      </div>
+      <div>
+        {/* Add Employee Button */}
+      {/* <button className="add-employee-btn" onClick={() => setShowAddEmployee(true)}>Add Employee</button> */}
+      <Button variant="contained" onClick={() => setShowAddEmployee(true)}>
+        Add Employee
+      </Button>
+      {/* Make Announcement Button */}
+      <Button variant="contained" color="primary" onClick={() => setShowAnnouncements(true)}>
+        Make Announcement
+      </Button>
+      <div className="charts">
+        <EmployeeLoginChart selectedEmployee="Rohit"  isAdmin={true}/>
+        <EmployeeLoginChart selectedEmployee="Suresh" isAdmin={true}/>
+      </div>
+      </div>
       {/* Add Employee Modal */}
       {showAddEmployee && (
         <AddEmployee onClose={() => setShowAddEmployee(false)} onEmployeeAdded={handleEmployeeAdded} />
       )}
+      {/* Announcement Modal */}
+      {showAnnouncements && <Announcements onClose={() => setShowAnnouncements(false)} />}
     </div>
   );
 };
