@@ -2,10 +2,10 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./timeLogger.css";
 import Clock from "./Clock.js";
-import { Button, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Paper } from "@mui/material";
+import { TextField,Select, Box, MenuItem, Button, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Paper } from "@mui/material";
 import Polygonmaskparticle from "./Polygonmaskparticle.js";
 import AnimatedBackground from "./AnimatedBackground.js";
-
+import NeatBackground from "./NeatBackground.js";
 
 
 const columns = [
@@ -132,32 +132,81 @@ const Timelogger = () => {
   return (
     <div>
       {/* <Polygonmaskparticle /> */}
-      <AnimatedBackground/>
+      {/* <AnimatedBackground/> */}
+      <NeatBackground/>
     
     <div className="p-4">
       
       <h1 className="text-xl font-bold">Welcome, {employeeName} 👋</h1>
-      <div className="space-y-4 adminLogger">
-        <input type="text" value={employeeName} readOnly className="border p-2 w-full bg-gray-100" />
-        <input readOnly value={selectedDate} className="border p-2 w-full" />
-        <select value={logType} onChange={(e) => setLogType(e.target.value)} className="border p-2 w-full">
-          <option>Login Time</option>
-          <option>Dinner Break - Start Time</option>
-          <option>Dinner Break - End Time</option>
-          <option>Logout Time</option>
-          <option>Short Break 1 Start</option>
-          <option>Short Break 1 End</option>
-          <option>Short Break 2 Start</option>
-          <option>Short Break 2 End</option>
-          <option>Short Break 3 Start</option>
-          <option>Short Break 3 End</option>
-        </select>
-        <input type="time" value={logTime} onChange={(e) => setLogTime(e.target.value)} className="border p-2 w-full" />
-        <input type="text" placeholder="Comment" value={comment} onChange={(e) => setComment(e.target.value)} className="border p-2 w-full" />
-        <Button  variant="contained" onClick={handleSubmit} className="submitButton">
-          Submit
-        </Button >
-      </div>
+      
+      <Box className="employeeLogger">
+      
+      {/* Employee Name */}
+      <TextField 
+        label="Name"
+        value={employeeName}
+        InputProps={{ readOnly: true }}
+        fullWidth
+      />
+
+      {/* Selected Date */}
+      <TextField 
+        label="Date"
+        value={selectedDate}
+        InputProps={{ readOnly: true }}
+        sx={{ width: "650px" }}
+      />
+
+      {/* Log Type Selection */}
+      <Select
+        value={logType}
+        onChange={(e) => setLogType(e.target.value)}
+        fullWidth
+        displayEmpty
+      >
+        <MenuItem value="" disabled>Select Log Type</MenuItem>
+        <MenuItem value="Login Time">Login Time</MenuItem>
+        <MenuItem value="Dinner Break - Start Time">Dinner Break - Start Time</MenuItem>
+        <MenuItem value="Dinner Break - End Time">Dinner Break - End Time</MenuItem>
+        <MenuItem value="Logout Time">Logout Time</MenuItem>
+        <MenuItem value="Short Break 1 Start">Short Break 1 Start</MenuItem>
+        <MenuItem value="Short Break 1 End">Short Break 1 End</MenuItem>
+        <MenuItem value="Short Break 2 Start">Short Break 2 Start</MenuItem>
+        <MenuItem value="Short Break 2 End">Short Break 2 End</MenuItem>
+        <MenuItem value="Short Break 3 Start">Short Break 3 Start</MenuItem>
+        <MenuItem value="Short Break 3 End">Short Break 3 End</MenuItem>
+      </Select>
+
+      {/* Log Time */}
+      <TextField 
+        label="Log Time"
+        type="time"
+        value={logTime}
+        onChange={(e) => setLogTime(e.target.value)}
+        InputLabelProps={{ shrink: true }}
+        sx={{ width: "650px" }}
+      />
+
+      {/* Comment Field */}
+      {/* <TextField 
+        label="Comment"
+        placeholder="Add a comment"
+        value={comment}
+        onChange={(e) => setComment(e.target.value)}
+        fullWidth
+      /> */}
+
+      {/* Submit Button */}
+      <Button 
+        variant="contained" 
+        className="timeBtn"
+        color="primary" 
+        onClick={handleSubmit} 
+      >
+        Submit
+      </Button>
+
+    </Box>
 
       <h2 className="text-lg font-bold mt-6">Time Logs</h2>
       <div>

@@ -1,13 +1,15 @@
 import React, { useState } from "react";
 import axios from "axios";
-import "./AddEmployee.css"; // Add styling
+import { Box, TextField, Button, Typography } from "@mui/material";
+import "./AddEmployee.css"; // Keep your styles for modal effect
+
+const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:6060";
 
 const AddEmployee = ({ onClose, onEmployeeAdded }) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState(""); // Default password
+  const [password, setPassword] = useState("");
   const [profilePic, setProfilePic] = useState("");
-  const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:6060";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,28 +31,67 @@ const AddEmployee = ({ onClose, onEmployeeAdded }) => {
         alert(response.data.error);
       } else {
         alert("Employee Added Successfully!");
-        onEmployeeAdded(response.data); // Update parent state
-        onClose(); // Close modal
+        onEmployeeAdded(response.data);
+        onClose();
       }
     } catch (error) {
       console.error("Error adding employee:", error);
       alert("Error adding employee, please try again.");
     }
   };
-//<input type="text" placeholder="Profile Picture URL (Optional)" value={profilePic} onChange={(e) => setProfilePic(e.target.value)} /> // for profile pic
+
   return (
     <div className="modal">
-      <div className="modal-content">
-        <h3>Add New Employee</h3>
+      <Box className="modal-content">
+        <Typography variant="h6" align="center">👤 Add New Employee</Typography>
+
         <form onSubmit={handleSubmit}>
-          <input type="text" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} required />
-          <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-          <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-          
-          <button type="submit">Add Employee</button>
-          <button type="button" onClick={onClose}>Cancel</button>
+          <TextField
+            label="Name"
+            variant="outlined"
+            fullWidth
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            sx={{ my: 1 }}
+            required
+          />
+          <TextField
+            label="Email"
+            type="email"
+            variant="outlined"
+            fullWidth
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            sx={{ my: 1 }}
+            required
+          />
+          <TextField
+            label="Password"
+            type="password"
+            variant="outlined"
+            fullWidth
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            sx={{ my: 1 }}
+            required
+          />
+          <TextField
+            label="Profile Picture URL (Optional)"
+            variant="outlined"
+            fullWidth
+            value={profilePic}
+            onChange={(e) => setProfilePic(e.target.value)}
+            sx={{ my: 1 }}
+          />
+
+          <Button variant="contained" color="primary" fullWidth type="submit" sx={{ mt: 2 }}>
+            Add Employee
+          </Button>
+          <Button variant="outlined" color="secondary" fullWidth onClick={onClose} sx={{ mt: 2 }}>
+            Cancel
+          </Button>
         </form>
-      </div>
+      </Box>
     </div>
   );
 };

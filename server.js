@@ -1,5 +1,9 @@
 import express from "express";
 import mongoose from "mongoose";
+import multer from "multer";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
+import cloudinary from "./cloudinaryConfig.js";
+import path from "path";
 import cors from "cors";
 import Timelog from "./db/timelog.js"; // Import your model
 import usersModel from "./db/user.js";
@@ -14,6 +18,7 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 app.use(cors());
+console.log("Cloudinary Name:", process.env.CLOUDINARY_CLOUD_NAME); 
 
 // 🔹 Connect to MongoDBcoMPASS
 mongoose.connect("mongodb://127.0.0.1:27017/timelogger", {
@@ -711,17 +716,63 @@ app.put("/employee-details", async (req, res) => {
   }
 });
 
+//upload images
+// Set up storage engine
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary.v2,
+  params: {
+    folder: "profile_pictures", // Folder in Cloudinary
+    allowed_formats: ["jpg", "png", "jpeg"],
+  },
+});
+
+const upload = multer({ storage });
+
+// Image Upload Route
+app.post("/upload-profile-picture", upload.single("profilePicture"), async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
+
+    console.log("File Uploaded:", req.file);
+    console.log("Email:", email);
+
+    const imagePath = req.file.path; // Cloudinary should return this
+
+    const updatedEmployee = await EmployeeDetails.findOneAndUpdate(
+      { email },
+      { profilePicture: imagePath },
+      { new: true }
+    );
+
+    if (!updatedEmployee) {
+      return res.status(404).json({ error: "Employee not found" });
+    }
+
+    res.json({ message: "Profile picture updated", profilePicture: imagePath });
+  } catch (error) {
+    console.error("Error uploading profile picture:", error);
+    res.status(500).json({ error: "Internal server error", details: error.message });
+  }
+});
+
+
+// Serve uploaded images statically
+// app.use("/uploads", express.static("uploads"));
+
+
+
 app.post("/daily-activity", async (req, res) => {
   try {
-    const { email, date, work, subWorkType, sheekLink, startTime } = req.body;
+    const { email, employeeName, date, work, subWorkType, sheekLink, startTime } = req.body;
 
-    // Validate required fields (endTime is optional)
-    if (!email || !date || !work || !subWorkType || !sheekLink || !startTime) {
+    if (!email || !employeeName || !date || !work || !subWorkType || !sheekLink || !startTime) {
       return res.status(400).json({ error: "All fields except End Time are required" });
     }
 
-    // Save the activity without an endTime initially
-    const activity = new DailyActivity({ email, date, work, subWorkType, sheekLink, startTime, endTime: null });
+    const activity = new DailyActivity({ email, employeeName, date, work, subWorkType, sheekLink, startTime, endTime: null });
     await activity.save();
 
     res.json({ message: "Start time saved successfully!", activity });
@@ -730,6 +781,7 @@ app.post("/daily-activity", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
 
 // Update only the end time for an existing activity
 app.put("/daily-activity/update-end-time", async (req, res) => {
@@ -778,10 +830,8 @@ app.get("/daily-activity", async (req, res) => {
     let activities;
 
     if (email) {
-      // Fetch activities for the specific employee
       activities = await DailyActivity.find({ email }).sort({ date: -1 });
     } else {
-      // Fetch all activities (admin view)
       activities = await DailyActivity.find().sort({ date: -1 });
     }
 
@@ -791,6 +841,7 @@ app.get("/daily-activity", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
 
 
 
@@ -886,7 +937,7 @@ app.delete("/announcements/:id", async (req, res) => {
 // 🔹 Fetch all employees
 app.get("/employees", async (req, res) => {
   try {
-    const employees = await EmployeeDetails.find({ isAdmin: false }, "name");
+    const employees = await EmployeeDetails.find({ isAdmin: false }, "name profilePicture");
     // const employees = await EmployeeDetails.find({ isAdmin: false });
     res.json(employees);
   } catch (error) {

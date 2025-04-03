@@ -3,9 +3,11 @@ import {
   Card, CardContent, CardMedia, Typography, 
   TextField, Select, MenuItem, Button, Grid 
 } from "@mui/material";
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import axios from "axios";
 import "./Profile.css";
 import AnimatedBackground from "./AnimatedBackground.js";
+import NeatBackground from "./NeatBackground.js";
 
 const Profile = () => {
   const user = JSON.parse(localStorage.getItem("user"));
@@ -24,7 +26,7 @@ const Profile = () => {
   });
 
   const email = user?.email;
-  const API_BASE_URL = "http://localhost:6060";
+  const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:6060";
 
   useEffect(() => {
     if (user && !employeeDetails) {
@@ -67,7 +69,28 @@ const Profile = () => {
       alert("Failed to update profile");
     }
   };
-
+  //images upload
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+  
+    const formData = new FormData();
+    formData.append("profilePicture", file);
+    formData.append("email", user.email);
+  
+    try {
+      const response = await axios.post(`${API_BASE_URL}/upload-profile-picture`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+  
+      setEmployeeDetails((prev) => ({ ...prev, profilePicture: response.data.profilePicture }));
+      alert("Profile picture updated successfully!");
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      alert("Failed to upload image");
+    }
+  };
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
     setEditedDetails((prevDetails) => ({
@@ -120,10 +143,12 @@ const Profile = () => {
   if (!employeeDetails) {
     return <Typography variant="h5" align="center">Loading employee details...</Typography>;
   }
+  
 
   return (
     <> 
-    <AnimatedBackground/>
+    {/* <AnimatedBackground/> */}
+    <NeatBackground/>
     <Card className="profile-container">
       <CardContent >
         <Grid container spacing={3}>
@@ -131,13 +156,21 @@ const Profile = () => {
             <CardMedia
               component="img"
               className="profile-pic"
-              image={user.profilePicture || "/default-profile.jpg"}
+              image={employeeDetails.profilePicture || "/default-profile.jpg"}
               alt="Profile Picture"
             />
+                <Button
+                    variant="contained"
+                    component="label"
+                    startIcon={<CloudUploadIcon />}
+                    sx={{ mt: 2 }}
+                  >
+                    Upload Image
+                    <input type="file" hidden accept="image/*" onChange={handleImageUpload} />
+                </Button>
           </Grid>
-
           <Grid item xs={12} sm={8}>
-            <Typography variant="h5" gutterBottom>Employee Details</Typography>
+            {/* <Typography variant="h5" gutterBottom>Employee Details</Typography> */}
             <Typography><strong>Name:</strong> {employeeDetails.name}</Typography>
             <Typography><strong>Employee ID:</strong> {employeeDetails.employeeId}</Typography>
 

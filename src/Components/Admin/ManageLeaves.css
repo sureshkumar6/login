@@ -1,11 +1,14 @@
 .manage-leaves {
-    padding: 20px;
+    margin-top: 10px;
+    background: white;
   }
   
   .leave-table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
   }
   
   .leave-table th, .leave-table td {

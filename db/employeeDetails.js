@@ -21,6 +21,7 @@ const employeeDetailsSchema = new mongoose.Schema({
   dob: { type: String },
   gender: { type: String },
   maritalStatus: { type: String },
+  profilePicture: { type: String }, // ✅ Store image URL
   isAdmin: { type: Boolean, default: false },  // ✅ Added isAdmin field
 });
 

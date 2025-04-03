@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import NeatBackground from "../NeatBackground.js";
 import {
   Typography,
   Select,
@@ -149,9 +150,10 @@ const AdminTimeLogger = () => {
 
   return (
     <div className="adminLogger">
-      <Typography variant="h4" gutterBottom className="text-xl font-bold mb-4">
+      <NeatBackground/>
+      {/* <Typography variant="h4" gutterBottom className="text-xl font-bold mb-4">
         Admin Time Logger
-      </Typography>
+      </Typography> */}
 
       {/* Error Message */}
       {error && <Typography color="error">{error}</Typography>}

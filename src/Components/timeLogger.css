@@ -72,6 +72,14 @@
     list-style-type: none;
     padding-left: 0; /* Remove default padding */
 }
+.employeeLogger{
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    background-color: white;
+    gap: 5px;
+    width: 60%;
+}
 
 
 /* Responsive Design */

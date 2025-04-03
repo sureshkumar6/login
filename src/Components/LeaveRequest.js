@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import NeatBackground from "./NeatBackground.js";
 import axios from "axios";
 import {
   Paper,
@@ -84,11 +85,10 @@ const LeaveRequest = () => {
         minHeight: "100vh",
         display: "flex",
         justifyContent: "center",
-        alignItems: "center",
-        background: "linear-gradient(to right, #00c6ff, #0072ff)",
         padding: 3,
       }}
     >
+      <NeatBackground/>
       <Paper elevation={5} sx={{ padding: 4, borderRadius: 3, maxWidth: 500, width: "100%" }}>
         <Typography variant="h5" align="center" gutterBottom>
           Leave Request Form

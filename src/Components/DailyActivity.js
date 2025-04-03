@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import NeatBackground from "./NeatBackground.js";
 import { TextField, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from "@mui/material";
 import "./DailyActivity.css";
 
@@ -13,10 +14,11 @@ const DailyActivity = () => {
     sheekLink: "",
     startTime: "",
     endTime: "",
+    employeeName: user?.name || "",
   });
   const [isLocked, setIsLocked] = useState(localStorage.getItem("isLocked") === "true");
 
-  const API_BASE_URL = "http://localhost:6060";
+  const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:6060";
 
   useEffect(() => {
     if (user) {
@@ -63,6 +65,7 @@ const DailyActivity = () => {
     try {
       await axios.post(`${API_BASE_URL}/daily-activity`, {
         email: user.email,
+        employeeName: user.name,
         ...newActivity,
         endTime: null,
       });
@@ -109,8 +112,9 @@ const DailyActivity = () => {
 
   return (
     <div>
-      <h2>Daily Activity Log</h2>
-      <form className="dailyActivityForm space-y-4">
+      <NeatBackground/>
+      {/* <h2>Daily Activity Log</h2> */}
+      <div className="dailyActivityForm">
         <TextField
           label="Date"
           type="date"
@@ -165,7 +169,7 @@ const DailyActivity = () => {
         />
 
         {!isLocked && (
-          <Button variant="contained" color="primary" onClick={handleSaveStartTime}>
+          <Button  className="saveBtn" variant="contained" color="primary" onClick={handleSaveStartTime}>
             Save Start Time
           </Button>
         )}
@@ -187,7 +191,7 @@ const DailyActivity = () => {
             </Button>
           </>
         )}
-      </form>
+      </div>
 
       <h3 className="mt-6">Previous Activities</h3>
       <div className="table-wrap">

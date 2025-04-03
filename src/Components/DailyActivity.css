@@ -1,4 +1,13 @@
 .dailyActivityForm{
     display: flex;
     flex-direction: row;
+    background-color: white;
+    margin-top: 20px;
+    width: 100% !important;
+    align-items: center;
+    gap: 5px;
+}
+
+.saveBtn{
+    display: -webkit-inline-box !important;
 }

@@ -15,6 +15,7 @@ import ManageLeaves from "./Components/Admin/ManageLeaves.js";
 import AdminTimelogger from "./Components/Admin/AdminTimelogger.js";
 import AdminComponent from "./Components/AdminComponent.js";
 import DoubleSliderAuth from "./Components/DoubleSliderAuth.js";
+import EmployeeAcitivities from "./Components/Admin/EmployeeAcitivities.js";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
 function App() {
@@ -59,6 +60,7 @@ function App() {
             {/* <Route path="/admin/employees" element={<EmployeeManagement />} /> */}
             <Route path="/admin/leaves" element={<ManageLeaves />} />
             <Route path="/admin/timelogger" element={<AdminTimelogger />} />
+            <Route path="/admin/employee-acitivities" element={<EmployeeAcitivities />} />
           </Route>
 
           {/* Public Routes - Only for non-logged-in users */}

@@ -20,7 +20,8 @@ const Navbar = () => {
   const handleLogout = () => {
     localStorage.removeItem("user");       
     localStorage.removeItem("employeeId"); 
-    localStorage.removeItem("admin");      
+    localStorage.removeItem("admin");  
+    localStorage.removeItem("dailyShloka")    
     navigate("/login"); 
   };
 
@@ -69,6 +70,9 @@ const Navbar = () => {
                   </li>
                   <li>
                     <NavLink to="/admin/timelogger">Modify Timelogger</NavLink>
+                  </li>
+                  <li>
+                    <NavLink to="/admin/employee-acitivities">Employees Acitivities</NavLink>
                   </li>
                   <li>
                     <button className="nav-button logout-button" onClick={handleLogout}>

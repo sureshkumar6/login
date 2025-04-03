@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import NeatBackground from "./NeatBackground.js";
 
 const Salary = () => {
   const [logs, setLogs] = useState([]);
@@ -53,6 +54,7 @@ const Salary = () => {
 
   return (
     <div className="salary-container">
+      <NeatBackground/>
       <h2>Salary Details</h2>
       <p><strong>Days in Month:</strong> {salaryData.totalDays}</p>
       <p><strong>Days Off:</strong> {salaryData.daysOff}</p>

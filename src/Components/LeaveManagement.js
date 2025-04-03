@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import NeatBackground from "./NeatBackground.js";
 import {
   Table,
   TableBody,
@@ -55,7 +56,8 @@ const LeaveManagement = () => {
 
   return (
     <div className="leave-management">
-      <Typography variant="h4" className="leave-title" gutterBottom>
+      <NeatBackground/>
+      <Typography variant="h4" className="leave-title" gutterBottom >
         Manage Leaves
       </Typography>
 

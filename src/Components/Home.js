@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import EmployeeLoginChart from "./EmployeeLoginChart.js";
+import NeatBackground from "./NeatBackground.js";
 import "./Home.css";
 
 const translations = [
@@ -23,6 +24,10 @@ const translations = [
   {
     hindi: "जो आत्मा को मारने वाला समझता है और जो इसको मरा समझता है वे दोनों ही नहीं जानते हैं, क्योंकि यह आत्मा न मरता है और न मारा जाता है।",
     english: "He who thinks that the soul kills, and he who thinks of it as killed, are both ignorant. The soul kills not, nor is it killed."
+  },
+  {
+    hindi: "आत्मा किसी काल में भी न जन्मता है और न मरता है और न यह एक बार होकर फिर अभावरूप होने वाला है। आत्मा अजन्मा, नित्य, शाश्वत और पुरातन है, शरीर के नाश होने पर भी इसका नाश नहीं होता।",
+    english: "The soul is never born, it never dies having come into being once, it never ceases to be. Unborn, eternal, abiding and primeval, it is not slain when the body is slain."
   }
 ];
 
@@ -135,28 +140,20 @@ const Home = () => {
 
   return (
     <div className="home-container">
+      <NeatBackground/>
       <h1>Hello, {employeeName} 👋</h1>
 
       {/* Bhagavad Gita Shloka */}
       <div className="shloka-box">
-        <h2>📖 Bhagavad Gita Thought of the Day</h2>
+        <h2>📖 Thought of the Day</h2>
         <p><strong>Hindi:</strong> {shloka.hindi}</p>
         <p><strong>English:</strong> {shloka.english}</p>
       </div>
 
       {/* Real-time Employee Status */}
       <div className="status-section">
-        <h2>👥 Employee Status</h2>
-          <div className="chart-section">
-        {/* <h2>📊 Your Work Summary</h2> */}
-        {employeeName ? (
-          <EmployeeLoginChart selectedEmployee={employeeName} isAdmin={false}/>
-        ) : (
-          <p>Loading chart...</p>
-        )}
-      </div>
-      <div>
-      <div className="work-summary">
+        {/* <h2>👥 Employee Status</h2> */}
+        <div className="work-summary">
         <h2>📅 Date: {new Date().toLocaleDateString()}</h2>
         <h3>Today I Worked On:</h3>
         {workSummary.length > 0 ? (
@@ -171,6 +168,16 @@ const Home = () => {
           <p>No work logged today.</p>
         )}
       </div>
+        <div className="chart-section">
+        {/* <h2>📊 Your Work Summary</h2> */}
+        {employeeName ? (
+          <EmployeeLoginChart selectedEmployee={employeeName} isAdmin={false}/>
+        ) : (
+          <p>Loading chart...</p>
+        )}
+      </div>
+      <div>
+
       </div>
       </div>
 

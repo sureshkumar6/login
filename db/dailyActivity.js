@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 const dailyActivitySchema = new mongoose.Schema({
   email: { type: String, required: true },
+  employeeName: { type: String, required: true },
   date: { type: String, required: true },
   work: { type: String, required: true },
   subWorkType: { type: String, required: true },
