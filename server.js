@@ -21,14 +21,14 @@ app.use(cors());
 console.log("Cloudinary Name:", process.env.CLOUDINARY_CLOUD_NAME); 
 
 // 🔹 Connect to MongoDBcoMPASS
-mongoose.connect("mongodb://127.0.0.1:27017/timelogger", {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
-
-// mongoose.connect(process.env.MONGO_URI, {
-//   authSource: "admin"
+// mongoose.connect("mongodb://127.0.0.1:27017/timelogger", {
+//   useNewUrlParser: true,
+//   useUnifiedTopology: true,
 // });
+
+mongoose.connect(process.env.MONGO_URI, {
+  authSource: "admin"
+});
 
 
 // 🔹 Get logs by employeeName
