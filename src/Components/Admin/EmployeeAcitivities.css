@@ -1,49 +1,149 @@
 .daily-activities-container {
-    /* max-width: 600px; */
-    /* margin: 20px auto;
+  /* max-width: 600px; */
+  /* margin: 20px auto;
     padding: 20px; */
-  }
-
-.dailyFilterContainer{
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
 }
-  
-  .title {
-    text-align: center;
-    font-weight: bold;
-    margin-bottom: 20px;
-  }
-  
-  .date-section {
-    background: #f5f5f5;
-    padding: 15px;
-    margin-bottom: 15px;
-    border-radius: 8px;
-    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-  }
-  
-  .date-header {
-    font-weight: bold;
-    color: #333;
-    margin-bottom: 10px;
-  }
-  
-  .activity-item {
-    display: flex;
+
+.dailyFilterContainer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: baseline;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  margin-bottom: 2rem;
+  transition: all 0.3s ease;
+  margin: 10px;
+}
+
+/* Icon Buttons (avatars) inside filter section */
+.dailyFilterContainer .MuiIconButton-root {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dailyFilterContainer .MuiIconButton-root:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* Responsive behavior */
+@media (max-width: 768px) {
+  .dailyFilterContainer {
+    flex-direction: column;
     align-items: center;
-    background: white;
-    margin: 5px 0;
-    padding: 10px;
-    border-radius: 6px;
-    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
+    padding: 1rem;
   }
-  
-  .avatar {
-    margin-right: 15px;
-    background-color: #1976d2;
-    color: white;
-  }
-  
+}
+
+.title {
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.date-section {
+  background: #f5f5f5;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.date-header {
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.activity-item {
+  display: flex;
+  align-items: center;
+  background: white;
+  margin: 5px 0;
+  padding: 10px;
+  border-radius: 6px;
+  box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
+}
+
+.avatar {
+  margin-right: 15px;
+  background-color: #1976d2;
+  color: white;
+}
+.MuiFormControl-root {
+  min-width: 200px;
+  background-color: #fafafa;
+  border-radius: 8px;
+}
+
+.MuiInputBase-root {
+  border-radius: 8px;
+}
+.employeeActivityContainer {
+  margin: 10px;
+}
+
+.badge {
+  padding: 4px 8px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-block;
+  color: white;
+}
+
+.badge-primary {
+  background-color: #3b82f6;
+}
+.time-badge {
+  background-color: #10b981;
+}
+.employeeActivityContainer {
+  margin: 10px;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.05);
+}
+
+.timeline-heading {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  text-align: left;
+  color: #1f2937;
+}
+
+.timeline-divider {
+  height: 2px;
+  background-color: #3b82f6;
+  border: none;
+  margin-bottom: 1.5rem;
+}
+
+.timeline-entry {
+  position: relative;
+  margin-bottom: 1.5rem;
+  padding-left: 0.5rem;
+}
+
+.timeline-dot {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  min-height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.timeline-line {
+  height: 30px;
+  width: 2px;
+  background-color: #d1d5db; /* Gray-300 */
+  margin-left: 11px; /* Center under dot */
+  margin-top: 4px;
+}

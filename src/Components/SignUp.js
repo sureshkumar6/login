@@ -4,6 +4,7 @@ import "./Login.css"; // Using the same CSS as Login
 
 const SignUp = () => {
   const [name, setName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const [adminCode, setAdminCode] = useState(""); // Admin verification code
@@ -29,14 +30,16 @@ const SignUp = () => {
 
     // Ensure isAdmin is only granted when the correct admin code is provided
     if (isAdmin && adminCode !== "888888") {
-      alert("Invalid admin code. You are not authorized to create an admin user.");
+      alert(
+        "Invalid admin code. You are not authorized to create an admin user."
+      );
       return;
     }
 
     try {
       const response = await fetch(`${API_BASE_URL}/register`, {
         method: "POST",
-        body: JSON.stringify({ name, email, password, isAdmin }),
+        body: JSON.stringify({ name, lastName, email, password, isAdmin }),
         headers: { "Content-Type": "application/json" },
       });
 
@@ -85,6 +88,15 @@ const SignUp = () => {
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Enter Name"
                     required
+                  />
+                </div>
+                <div className="inputBox mb-3">
+                  <i className="fas fa-user"></i>
+                  <input
+                    type="text"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    placeholder="Enter Last Name"
                   />
                 </div>
 
@@ -143,7 +155,10 @@ const SignUp = () => {
               {/* Login Option */}
               <p className="register-link">
                 Already have an account?{" "}
-                <span onClick={() => navigate("/login")} className="register-btn">
+                <span
+                  onClick={() => navigate("/login")}
+                  className="register-btn"
+                >
                   Login
                 </span>
               </p>

@@ -14,22 +14,20 @@ import Announcement from "./db/AnnouncementModel.js";
 import dotenv from "dotenv";
 dotenv.config();
 
-
 const app = express();
 app.use(express.json());
 app.use(cors());
-console.log("Cloudinary Name:", process.env.CLOUDINARY_CLOUD_NAME); 
+console.log("Cloudinary Name:", process.env.CLOUDINARY_CLOUD_NAME);
 
 // 🔹 Connect to MongoDBcoMPASS
-// mongoose.connect("mongodb://127.0.0.1:27017/timelogger", {
-//   useNewUrlParser: true,
-//   useUnifiedTopology: true,
-// });
-
-mongoose.connect(process.env.MONGO_URI, {
-  authSource: "admin"
+mongoose.connect("mongodb://127.0.0.1:27017/timelogger", {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
 });
 
+// mongoose.connect(process.env.MONGO_URI, {
+//   authSource: "admin"
+// });
 
 // 🔹 Get logs by employeeName
 app.get("/logs", async (req, res) => {
@@ -47,8 +45,6 @@ app.get("/logs", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
-
-
 
 app.post("/logs", async (req, res) => {
   // console.log("Received request:", req.body);
@@ -119,11 +115,16 @@ app.post("/logs", async (req, res) => {
     const convertDecimalToHHMM = (decimalHours) => {
       const hours = Math.floor(decimalHours);
       const minutes = Math.round((decimalHours - hours) * 60);
-      return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
+      return `${hours.toString().padStart(2, "0")}:${minutes
+        .toString()
+        .padStart(2, "0")}`;
     };
 
     // ✅ Calculate Total Login Hours
-    const totalLoginHours = calculateHours(logEntry.loginTime, logEntry.logoutTime);
+    const totalLoginHours = calculateHours(
+      logEntry.loginTime,
+      logEntry.logoutTime
+    );
 
     // ✅ Calculate Break Duration (Only Including Breaks > 5 min)
     const breakDuration =
@@ -133,8 +134,12 @@ app.post("/logs", async (req, res) => {
       calculateHours(logEntry.shortBreak3Start, logEntry.shortBreak3End);
 
     // ✅ Calculate Actual Login Hours
-    const actualLoginHoursDecimal = (totalLoginHours - breakDuration).toFixed(2);
-    const actualLoginHoursFormatted = convertDecimalToHHMM(actualLoginHoursDecimal);
+    const actualLoginHoursDecimal = (totalLoginHours - breakDuration).toFixed(
+      2
+    );
+    const actualLoginHoursFormatted = convertDecimalToHHMM(
+      actualLoginHoursDecimal
+    );
 
     // 🔹 Convert Actual Login Hrs to Admin Login Hrs Based on Rounding Rules
     const roundToAdminHours = (decimalHours) => {
@@ -145,7 +150,7 @@ app.post("/logs", async (req, res) => {
       if (minutes >= 8 && minutes <= 22) {
         roundedMinutes = 0.25;
       } else if (minutes >= 23 && minutes <= 37) {
-        roundedMinutes = 0.50;
+        roundedMinutes = 0.5;
       } else if (minutes >= 38 && minutes <= 52) {
         roundedMinutes = 0.75;
       } else if (minutes >= 53 && minutes <= 59) {
@@ -155,7 +160,9 @@ app.post("/logs", async (req, res) => {
       return (hours + roundedMinutes).toFixed(2);
     };
 
-    const adminLoginHours = roundToAdminHours(parseFloat(actualLoginHoursDecimal));
+    const adminLoginHours = roundToAdminHours(
+      parseFloat(actualLoginHoursDecimal)
+    );
 
     // ✅ Store in MongoDB in HH:MM Format
     logEntry.totalLoginHours = convertDecimalToHHMM(totalLoginHours);
@@ -276,8 +283,7 @@ app.post("/logs", async (req, res) => {
 //   }
 // });
 
-
-//for admin 
+//for admin
 // app.put("/logs", async (req, res) => {
 //   // console.log("Received request:", req.body);
 //   try {
@@ -395,7 +401,12 @@ app.put("/logs", async (req, res) => {
   try {
     const { employeeName, date, logType, ...logTimes } = req.body;
 
-    if (!employeeName || !date || !logType || Object.keys(logTimes).length === 0) {
+    if (
+      !employeeName ||
+      !date ||
+      !logType ||
+      Object.keys(logTimes).length === 0
+    ) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
@@ -462,11 +473,16 @@ app.put("/logs", async (req, res) => {
     const convertDecimalToHHMM = (decimalHours) => {
       const hours = Math.floor(decimalHours);
       const minutes = Math.round((decimalHours - hours) * 60);
-      return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
+      return `${hours.toString().padStart(2, "0")}:${minutes
+        .toString()
+        .padStart(2, "0")}`;
     };
 
     // ✅ Calculate Total Login Hours
-    const totalLoginHours = calculateHours(logEntry.loginTime, logEntry.logoutTime);
+    const totalLoginHours = calculateHours(
+      logEntry.loginTime,
+      logEntry.logoutTime
+    );
 
     // ✅ Calculate Break Duration (Only Including Breaks > 5 min)
     const breakDuration =
@@ -476,8 +492,12 @@ app.put("/logs", async (req, res) => {
       calculateHours(logEntry.shortBreak3Start, logEntry.shortBreak3End);
 
     // ✅ Calculate Actual Login Hours
-    const actualLoginHoursDecimal = (totalLoginHours - breakDuration).toFixed(2);
-    const actualLoginHoursFormatted = convertDecimalToHHMM(actualLoginHoursDecimal);
+    const actualLoginHoursDecimal = (totalLoginHours - breakDuration).toFixed(
+      2
+    );
+    const actualLoginHoursFormatted = convertDecimalToHHMM(
+      actualLoginHoursDecimal
+    );
 
     // 🔹 Convert Actual Login Hrs to Admin Login Hrs Based on Rounding Rules
     const roundToAdminHours = (decimalHours) => {
@@ -488,7 +508,7 @@ app.put("/logs", async (req, res) => {
       if (minutes >= 8 && minutes <= 22) {
         roundedMinutes = 0.25;
       } else if (minutes >= 23 && minutes <= 37) {
-        roundedMinutes = 0.50;
+        roundedMinutes = 0.5;
       } else if (minutes >= 38 && minutes <= 52) {
         roundedMinutes = 0.75;
       } else if (minutes >= 53 && minutes <= 59) {
@@ -498,7 +518,9 @@ app.put("/logs", async (req, res) => {
       return (hours + roundedMinutes).toFixed(2);
     };
 
-    const adminLoginHours = roundToAdminHours(parseFloat(actualLoginHoursDecimal));
+    const adminLoginHours = roundToAdminHours(
+      parseFloat(actualLoginHoursDecimal)
+    );
 
     // ✅ Store in MongoDB in HH:MM Format
     logEntry.totalLoginHours = convertDecimalToHHMM(totalLoginHours);
@@ -513,8 +535,6 @@ app.put("/logs", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
-
-
 
 // app.get("/employees-logs", async (req, res) => {
 //   try {
@@ -550,21 +570,21 @@ app.get("/employees-logs", async (req, res) => {
       return res.status(404).json({ message: "No logs found" });
     }
 
-    res.json(logs.map(log => ({
-      ...log._doc,  // Spread original log data
-      modifications: log.modifications || [] // Ensure modifications array exists
-    })));
+    res.json(
+      logs.map((log) => ({
+        ...log._doc, // Spread original log data
+        modifications: log.modifications || [], // Ensure modifications array exists
+      }))
+    );
   } catch (error) {
     console.error("Error fetching logs:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
 
-
-
 app.post("/register", async (req, res) => {
   try {
-    const { name, email, password, isAdmin } = req.body;
+    const { name, lastName, email, password, isAdmin } = req.body;
 
     if (!name || !email || !password) {
       return res.status(400).json({ error: "All fields are required" });
@@ -576,49 +596,53 @@ app.post("/register", async (req, res) => {
     }
 
     // ✅ Generate Employee ID for both Admins & Non-Admins
-    let lastEmployee = await EmployeeDetails.findOne({ employeeId: /^EMP\d+$/ }).sort({ employeeId: -1 });
-    let lastEmployeeId = lastEmployee ? parseInt(lastEmployee.employeeId.replace("EMP", ""), 10) : 1000;
+    let lastEmployee = await EmployeeDetails.findOne({
+      employeeId: /^EMP\d+$/,
+    }).sort({ employeeId: -1 });
+    let lastEmployeeId = lastEmployee
+      ? parseInt(lastEmployee.employeeId.replace("EMP", ""), 10)
+      : 1000;
     let employeeId = `EMP${lastEmployeeId + 1}`;
 
     // ✅ Save User
-    const user = new usersModel({ 
-      name, 
-      email, 
-      password,  
-      employeeId, 
-      isAdmin: isAdmin || false, 
+    const user = new usersModel({
+      name,
+      lastName,
+      email,
+      password,
+      employeeId,
+      isAdmin: isAdmin || false,
     });
 
     await user.save();
 
     // ✅ Save Employee Details (Admins also get stored)
-    const employeeDetails = new EmployeeDetails({ 
-      employeeId, 
-      name, 
-      email, 
-      dob: "", 
-      gender: "", 
+    const employeeDetails = new EmployeeDetails({
+      employeeId,
+      name,
+      lastName,
+      email,
+      dob: "",
+      gender: "",
       maritalStatus: "",
-      isAdmin: isAdmin || false,  
+      isAdmin: isAdmin || false,
     });
 
     await employeeDetails.save();
 
-    res.json({ 
-      message: "User registered successfully!", 
-      name, 
-      email, 
-      employeeId, 
-      isAdmin: user.isAdmin 
+    res.json({
+      message: "User registered successfully!",
+      name,
+      lastName,
+      email,
+      employeeId,
+      isAdmin: user.isAdmin,
     });
-
   } catch (error) {
     console.error("Error during registration:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
-
-
 
 app.post("/login", async (req, res) => {
   try {
@@ -642,8 +666,6 @@ app.post("/login", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
-
-
 
 app.put("/change-password", async (req, res) => {
   try {
@@ -669,9 +691,6 @@ app.put("/change-password", async (req, res) => {
   }
 });
 
-
-
-
 app.get("/employee-details", async (req, res) => {
   try {
     const { email } = req.query;
@@ -691,17 +710,36 @@ app.get("/employee-details", async (req, res) => {
   }
 });
 
-
 app.put("/employee-details", async (req, res) => {
   try {
-    const { email, dob, gender, maritalStatus } = req.body;
+    const {
+      email,
+      name,
+      lastName,
+      dob,
+      gender,
+      maritalStatus,
+      nationality,
+      phone,
+      address,
+    } = req.body;
+
     if (!email) {
       return res.status(400).json({ error: "Email is required" });
     }
 
     const updatedEmployee = await EmployeeDetails.findOneAndUpdate(
       { email },
-      { dob, gender, maritalStatus },
+      {
+        name,
+        lastName,
+        dob,
+        gender,
+        maritalStatus,
+        nationality,
+        phone,
+        address,
+      },
       { new: true }
     );
 
@@ -709,7 +747,10 @@ app.put("/employee-details", async (req, res) => {
       return res.status(404).json({ error: "Employee details not found" });
     }
 
-    res.json({ message: "Employee details updated successfully", updatedEmployee });
+    res.json({
+      message: "Employee details updated successfully",
+      updatedEmployee,
+    });
   } catch (error) {
     console.error("Error updating employee details:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -729,50 +770,83 @@ const storage = new CloudinaryStorage({
 const upload = multer({ storage });
 
 // Image Upload Route
-app.post("/upload-profile-picture", upload.single("profilePicture"), async (req, res) => {
-  try {
-    const { email } = req.body;
-    if (!req.file) {
-      return res.status(400).json({ error: "No file uploaded" });
+app.post(
+  "/upload-profile-picture",
+  upload.single("profilePicture"),
+  async (req, res) => {
+    try {
+      const { email } = req.body;
+      if (!req.file) {
+        return res.status(400).json({ error: "No file uploaded" });
+      }
+
+      console.log("File Uploaded:", req.file);
+      console.log("Email:", email);
+
+      const imagePath = req.file.path; // Cloudinary should return this
+
+      const updatedEmployee = await EmployeeDetails.findOneAndUpdate(
+        { email },
+        { profilePicture: imagePath },
+        { new: true }
+      );
+
+      if (!updatedEmployee) {
+        return res.status(404).json({ error: "Employee not found" });
+      }
+
+      res.json({
+        message: "Profile picture updated",
+        profilePicture: imagePath,
+      });
+    } catch (error) {
+      console.error("Error uploading profile picture:", error);
+      res
+        .status(500)
+        .json({ error: "Internal server error", details: error.message });
     }
-
-    console.log("File Uploaded:", req.file);
-    console.log("Email:", email);
-
-    const imagePath = req.file.path; // Cloudinary should return this
-
-    const updatedEmployee = await EmployeeDetails.findOneAndUpdate(
-      { email },
-      { profilePicture: imagePath },
-      { new: true }
-    );
-
-    if (!updatedEmployee) {
-      return res.status(404).json({ error: "Employee not found" });
-    }
-
-    res.json({ message: "Profile picture updated", profilePicture: imagePath });
-  } catch (error) {
-    console.error("Error uploading profile picture:", error);
-    res.status(500).json({ error: "Internal server error", details: error.message });
   }
-});
-
+);
 
 // Serve uploaded images statically
 // app.use("/uploads", express.static("uploads"));
 
-
-
 app.post("/daily-activity", async (req, res) => {
   try {
-    const { email, employeeName, date, work, subWorkType, sheekLink, startTime } = req.body;
+    const {
+      email,
+      employeeName,
+      date,
+      work,
+      subWorkType,
+      sheekLink,
+      startTime,
+    } = req.body;
 
-    if (!email || !employeeName || !date || !work || !subWorkType || !sheekLink || !startTime) {
-      return res.status(400).json({ error: "All fields except End Time are required" });
+    if (
+      !email ||
+      !employeeName ||
+      !date ||
+      !work ||
+      !subWorkType ||
+      !sheekLink ||
+      !startTime
+    ) {
+      return res
+        .status(400)
+        .json({ error: "All fields except End Time are required" });
     }
 
-    const activity = new DailyActivity({ email, employeeName, date, work, subWorkType, sheekLink, startTime, endTime: null });
+    const activity = new DailyActivity({
+      email,
+      employeeName,
+      date,
+      work,
+      subWorkType,
+      sheekLink,
+      startTime,
+      endTime: null,
+    });
     await activity.save();
 
     res.json({ message: "Start time saved successfully!", activity });
@@ -782,13 +856,14 @@ app.post("/daily-activity", async (req, res) => {
   }
 });
 
-
 // Update only the end time for an existing activity
 app.put("/daily-activity/update-end-time", async (req, res) => {
   try {
     const { email, date, endTime } = req.body;
     if (!email || !date || !endTime) {
-      return res.status(400).json({ error: "Email, Date, and End Time are required" });
+      return res
+        .status(400)
+        .json({ error: "Email, Date, and End Time are required" });
     }
 
     const updatedActivity = await DailyActivity.findOneAndUpdate(
@@ -798,7 +873,9 @@ app.put("/daily-activity/update-end-time", async (req, res) => {
     );
 
     if (!updatedActivity) {
-      return res.status(404).json({ error: "No matching record found to update" });
+      return res
+        .status(404)
+        .json({ error: "No matching record found to update" });
     }
 
     res.json({ message: "End time updated successfully!", updatedActivity });
@@ -807,7 +884,6 @@ app.put("/daily-activity/update-end-time", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
-
 
 // app.get("/daily-activity", async (req, res) => {
 //   try {
@@ -842,9 +918,6 @@ app.get("/daily-activity", async (req, res) => {
   }
 });
 
-
-
-
 app.post("/leave-requests", async (req, res) => {
   try {
     const newLeaveRequest = new LeaveRequest(req.body);
@@ -861,22 +934,22 @@ app.get("/leave-requests", async (req, res) => {
   try {
     // If an email is provided, return only that employee's leaves
     if (email) {
-      const leaveRequests = await LeaveRequest.find({ email }).sort({ requestDate: -1 });
+      const leaveRequests = await LeaveRequest.find({ email }).sort({
+        requestDate: -1,
+      });
       return res.status(200).json(leaveRequests);
     }
-    
-    // Otherwise, return ALL leave requests (for admins)
-    const allLeaveRequests = await LeaveRequest.find().sort({ requestDate: -1 });
-    res.status(200).json(allLeaveRequests);
 
+    // Otherwise, return ALL leave requests (for admins)
+    const allLeaveRequests = await LeaveRequest.find().sort({
+      requestDate: -1,
+    });
+    res.status(200).json(allLeaveRequests);
   } catch (error) {
     console.error("Error fetching leave requests:", error);
     res.status(500).json({ error: "Failed to fetch leave requests." });
   }
 });
-
-
-
 
 // 👉 API to delete a leave request
 app.delete("/leave-requests/:id", async (req, res) => {
@@ -925,8 +998,11 @@ app.post("/announcements", async (req, res) => {
 // 📌 Delete an announcement (Optional)
 app.delete("/announcements/:id", async (req, res) => {
   try {
-    const deletedAnnouncement = await Announcement.findByIdAndDelete(req.params.id);
-    if (!deletedAnnouncement) return res.status(404).json({ message: "Announcement not found" });
+    const deletedAnnouncement = await Announcement.findByIdAndDelete(
+      req.params.id
+    );
+    if (!deletedAnnouncement)
+      return res.status(404).json({ message: "Announcement not found" });
 
     res.json({ message: "Announcement deleted successfully" });
   } catch (error) {
@@ -937,7 +1013,10 @@ app.delete("/announcements/:id", async (req, res) => {
 // 🔹 Fetch all employees
 app.get("/employees", async (req, res) => {
   try {
-    const employees = await EmployeeDetails.find({ isAdmin: false }, "name profilePicture");
+    const employees = await EmployeeDetails.find(
+      { isAdmin: false },
+      "name profilePicture"
+    );
     // const employees = await EmployeeDetails.find({ isAdmin: false });
     res.json(employees);
   } catch (error) {
@@ -945,7 +1024,6 @@ app.get("/employees", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
-
 
 // 🔹 Fetch logs of a specific employee
 app.get("/employee-logs", async (req, res) => {
@@ -968,10 +1046,14 @@ app.put("/update-logs", async (req, res) => {
   try {
     const { logId, updates } = req.body;
     if (!logId || !updates) {
-      return res.status(400).json({ error: "Log ID and update fields are required" });
+      return res
+        .status(400)
+        .json({ error: "Log ID and update fields are required" });
     }
 
-    const updatedLog = await Timelog.findByIdAndUpdate(logId, updates, { new: true });
+    const updatedLog = await Timelog.findByIdAndUpdate(logId, updates, {
+      new: true,
+    });
     if (!updatedLog) {
       return res.status(404).json({ error: "Log entry not found" });
     }
@@ -982,7 +1064,6 @@ app.put("/update-logs", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
-
 
 app.listen(6060, () => {
   console.log("Server running on port 6060");

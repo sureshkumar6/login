@@ -1,5 +1,22 @@
 import React, { useState } from "react";
 import { useNavigate, NavLink } from "react-router-dom";
+
+//icons
+import HomeIcon from '@mui/icons-material/Home';
+import PaidIcon from '@mui/icons-material/Paid';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import BeachAccessIcon from '@mui/icons-material/BeachAccess';
+import SettingsIcon from '@mui/icons-material/Settings';
+import TodayIcon from '@mui/icons-material/Today';
+import LogoutIcon from '@mui/icons-material/Logout';
+
+import GroupIcon from '@mui/icons-material/Group';
+import EventNoteIcon from '@mui/icons-material/EventNote';
+import EditNoteIcon from '@mui/icons-material/EditNote';
+import InsightsIcon from '@mui/icons-material/Insights';
+
+
 import "./Navbar.css"; // Ensure you have this file for styling
 
 const Navbar = () => {
@@ -63,48 +80,48 @@ const Navbar = () => {
               isAdmin ? (
                 <>
                   <li>
-                    <NavLink to="/admin/employees">Manage Employees</NavLink>
+                    <NavLink to="/admin/employees"><GroupIcon fontSize="small" /> Manage Employees</NavLink>
                   </li>
                   <li>
-                    <NavLink to="/admin/leaves">Manage Leaves</NavLink>
+                    <NavLink to="/admin/leaves"><EventNoteIcon fontSize="small" /> Manage Leaves</NavLink>
                   </li>
                   <li>
-                    <NavLink to="/admin/timelogger">Modify Timelogger</NavLink>
+                    <NavLink to="/admin/timelogger"><EditNoteIcon fontSize="small" /> Modify Timelogger</NavLink>
                   </li>
                   <li>
-                    <NavLink to="/admin/employee-acitivities">Employees Acitivities</NavLink>
+                    <NavLink to="/admin/employee-acitivities"><InsightsIcon fontSize="small" /> Employees Activities</NavLink>
                   </li>
                   <li>
                     <button className="nav-button logout-button" onClick={handleLogout}>
-                      Logout
+                      <LogoutIcon fontSize="small" className="logoutIcon" /> Logout
                     </button>
                   </li>
                 </>
               ) : (
                 <>
                   <li>
-                    <NavLink to="/">Home</NavLink>
+                    <NavLink to="/"><HomeIcon fontSize="small"/> Home</NavLink>
                   </li>
                   <li>
-                    <NavLink to="/salary">Salary</NavLink>
+                    <NavLink to="/salary"><PaidIcon fontSize="small" /> Salary</NavLink>
                   </li>
                   <li>
-                    <NavLink to="/Time">Time</NavLink>
+                    <NavLink to="/Time"><AccessTimeIcon fontSize="small" /> Time</NavLink>
                   </li>
                   <li>
-                    <NavLink to="/profile">Profile</NavLink>
+                    <NavLink to="/profile"><AccountCircleIcon fontSize="small" /> Profile</NavLink>
                   </li>
                   <li>
-                    <NavLink to="/leaves">Leaves</NavLink>
+                    <NavLink to="/leaves"><BeachAccessIcon fontSize="small" /> Leaves</NavLink>
                   </li>
                   <li>
-                    <NavLink to="/manage">Manage</NavLink>
+                    <NavLink to="/manage"><SettingsIcon fontSize="small" /> Manage</NavLink>
                   </li>
                   <li>
-                    <NavLink to="/Daily">Daily</NavLink>
+                    <NavLink to="/Daily"><TodayIcon fontSize="small" /> Daily</NavLink>
                   </li>
                   <li onClick={handleLogout} className="logout">
-                    Logout
+                    <LogoutIcon fontSize="small" className="logoutIcon"/> Logout
                   </li>
                 </>
               )

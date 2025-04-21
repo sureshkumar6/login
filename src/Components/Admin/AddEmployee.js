@@ -7,6 +7,7 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:6060";
 
 const AddEmployee = ({ onClose, onEmployeeAdded }) => {
   const [name, setName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [profilePic, setProfilePic] = useState("");
@@ -21,6 +22,7 @@ const AddEmployee = ({ onClose, onEmployeeAdded }) => {
     try {
       const response = await axios.post(`${API_BASE_URL}/register`, {
         name,
+        lastName,
         email,
         password,
         profilePic,
@@ -43,7 +45,9 @@ const AddEmployee = ({ onClose, onEmployeeAdded }) => {
   return (
     <div className="modal">
       <Box className="modal-content">
-        <Typography variant="h6" align="center">👤 Add New Employee</Typography>
+        <Typography variant="h6" align="center">
+          👤 Add New Employee
+        </Typography>
 
         <form onSubmit={handleSubmit}>
           <TextField
@@ -55,6 +59,15 @@ const AddEmployee = ({ onClose, onEmployeeAdded }) => {
             sx={{ my: 1 }}
             required
           />
+          <TextField
+            label="Last Name"
+            variant="outlined"
+            fullWidth
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+            sx={{ my: 1 }}
+          />
+
           <TextField
             label="Email"
             type="email"
@@ -84,10 +97,22 @@ const AddEmployee = ({ onClose, onEmployeeAdded }) => {
             sx={{ my: 1 }}
           />
 
-          <Button variant="contained" color="primary" fullWidth type="submit" sx={{ mt: 2 }}>
+          <Button
+            variant="contained"
+            color="primary"
+            fullWidth
+            type="submit"
+            sx={{ mt: 2 }}
+          >
             Add Employee
           </Button>
-          <Button variant="outlined" color="secondary" fullWidth onClick={onClose} sx={{ mt: 2 }}>
+          <Button
+            variant="outlined"
+            color="secondary"
+            fullWidth
+            onClick={onClose}
+            sx={{ mt: 2 }}
+          >
             Cancel
           </Button>
         </form>

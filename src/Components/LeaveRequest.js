@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import NeatBackground from "./NeatBackground.js";
@@ -25,9 +24,9 @@ const LeaveRequest = () => {
   const [toDate, setToDate] = useState("");
   const [specificTime, setSpecificTime] = useState("");
   const [leaveReason, setLeaveReason] = useState("");
-  const [compensationOption, setCompensationOption] = useState("Deduct from Pay");
+  const [compensationOption, setCompensationOption] =
+    useState("Deduct from Pay");
   const navigate = useNavigate();
-
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
@@ -35,11 +34,25 @@ const LeaveRequest = () => {
       setEmail(storedUser.email);
     }
 
-    const options = { timeZone: "America/Chicago", year: "numeric", month: "2-digit", day: "2-digit" };
-    const timeOptions = { timeZone: "America/Chicago", hour12: true, hour: "2-digit", minute: "2-digit" };
+    const options = {
+      timeZone: "America/Chicago",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    };
+    const timeOptions = {
+      timeZone: "America/Chicago",
+      hour12: true,
+      hour: "2-digit",
+      minute: "2-digit",
+    };
 
-    setRequestDate(new Intl.DateTimeFormat("en-US", options).format(new Date()));
-    setRequestTime(new Intl.DateTimeFormat("en-US", timeOptions).format(new Date()));
+    setRequestDate(
+      new Intl.DateTimeFormat("en-US", options).format(new Date())
+    );
+    setRequestTime(
+      new Intl.DateTimeFormat("en-US", timeOptions).format(new Date())
+    );
   }, []);
 
   const handleSubmit = async () => {
@@ -48,7 +61,8 @@ const LeaveRequest = () => {
       return;
     }
 
-    const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:6060";
+    const API_BASE_URL =
+      process.env.REACT_APP_API_URL || "http://localhost:6060";
 
     try {
       await axios.post(`${API_BASE_URL}/leave-requests`, {
@@ -56,9 +70,18 @@ const LeaveRequest = () => {
         requestDate,
         requestTime,
         leaveType,
-        fromDate: leaveType === "Full Day Off" || leaveType === "Multiple Days Off" ? fromDate : null,
-        toDate: leaveType === "Full Day Off" || leaveType === "Multiple Days Off" ? toDate : null,
-        specificTime: leaveType === "Arriving Late" || leaveType === "Leaving Early" ? specificTime : null,
+        fromDate:
+          leaveType === "Full Day Off" || leaveType === "Multiple Days Off"
+            ? fromDate
+            : null,
+        toDate:
+          leaveType === "Full Day Off" || leaveType === "Multiple Days Off"
+            ? toDate
+            : null,
+        specificTime:
+          leaveType === "Arriving Late" || leaveType === "Leaving Early"
+            ? specificTime
+            : null,
         leaveReason,
         compensationOption,
       });
@@ -72,9 +95,11 @@ const LeaveRequest = () => {
       setSpecificTime("");
       setLeaveReason("");
       setCompensationOption("Deduct from Pay");
-
     } catch (error) {
-      console.error("Error submitting leave request:", error.response?.data || error.message);
+      console.error(
+        "Error submitting leave request:",
+        error.response?.data || error.message
+      );
       alert(error.response?.data?.error || "Something went wrong");
     }
   };
@@ -88,21 +113,45 @@ const LeaveRequest = () => {
         padding: 3,
       }}
     >
-      <NeatBackground/>
-      <Paper elevation={5} sx={{ padding: 4, borderRadius: 3, maxWidth: 500, width: "100%" }}>
+      {/* <NeatBackground/> */}
+      <Paper
+        elevation={5}
+        sx={{ padding: 4, borderRadius: 3, maxWidth: 500, width: "100%" }}
+      >
         <Typography variant="h5" align="center" gutterBottom>
           Leave Request Form
         </Typography>
 
-        <TextField label="Email" value={email} fullWidth disabled margin="normal" />
+        <TextField
+          label="Email"
+          value={email}
+          fullWidth
+          disabled
+          margin="normal"
+        />
 
-        <TextField label="Request Date" value={requestDate} fullWidth disabled margin="normal" />
+        <TextField
+          label="Request Date"
+          value={requestDate}
+          fullWidth
+          disabled
+          margin="normal"
+        />
 
-        <TextField label="Request Time" value={requestTime} fullWidth disabled margin="normal" />
+        <TextField
+          label="Request Time"
+          value={requestTime}
+          fullWidth
+          disabled
+          margin="normal"
+        />
 
         <FormControl fullWidth margin="normal">
           <InputLabel>Type of Leave</InputLabel>
-          <Select value={leaveType} onChange={(e) => setLeaveType(e.target.value)}>
+          <Select
+            value={leaveType}
+            onChange={(e) => setLeaveType(e.target.value)}
+          >
             <MenuItem value="Full Day Off">Full Day Off</MenuItem>
             <MenuItem value="Multiple Days Off">Multiple Days Off</MenuItem>
             <MenuItem value="Arriving Late">Arriving Late</MenuItem>
@@ -110,7 +159,8 @@ const LeaveRequest = () => {
           </Select>
         </FormControl>
 
-        {(leaveType === "Full Day Off" || leaveType === "Multiple Days Off") && (
+        {(leaveType === "Full Day Off" ||
+          leaveType === "Multiple Days Off") && (
           <>
             <TextField
               label="From Date"
@@ -159,7 +209,10 @@ const LeaveRequest = () => {
 
         <FormControl fullWidth margin="normal">
           <InputLabel>Compensation Option</InputLabel>
-          <Select value={compensationOption} onChange={(e) => setCompensationOption(e.target.value)}>
+          <Select
+            value={compensationOption}
+            onChange={(e) => setCompensationOption(e.target.value)}
+          >
             <MenuItem value="Deduct from Pay">Deduct from Pay</MenuItem>
             <MenuItem value="Make up Lost Time">Make up Lost Time</MenuItem>
           </Select>

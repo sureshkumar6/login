@@ -16,15 +16,22 @@ import mongoose from "mongoose";
 
 const employeeDetailsSchema = new mongoose.Schema({
   name: { type: String, required: true },
+  lastName: { type: String },
   employeeId: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true },
   dob: { type: String },
   gender: { type: String },
   maritalStatus: { type: String },
+  nationality: { type: String },
+  phone: { type: String },
+  address: { type: String },
   profilePicture: { type: String }, // ✅ Store image URL
-  isAdmin: { type: Boolean, default: false },  // ✅ Added isAdmin field
+  isAdmin: { type: Boolean, default: false }, // ✅ Added isAdmin field
 });
 
-const EmployeeDetails = mongoose.model("EmployeeDetails", employeeDetailsSchema);
+const EmployeeDetails = mongoose.model(
+  "EmployeeDetails",
+  employeeDetailsSchema
+);
 
 export default EmployeeDetails;

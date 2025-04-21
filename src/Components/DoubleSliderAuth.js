@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import ParticlesBackground from "./ParticlesBackground.js"; 
+import ParticlesBackground from "./ParticlesBackground.js";
 // import Polygonmaskparticle from "./Polygonmaskparticle.js";
 import "./DoubleSliderAuth.css";
 
@@ -11,6 +11,7 @@ const DoubleSliderAuth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [adminCode, setAdminCode] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
@@ -30,6 +31,7 @@ const DoubleSliderAuth = () => {
       if (result.employeeId) {
         const userData = {
           name: result.name,
+          lastName: result.lastName,
           email: result.email,
           employeeId: result.employeeId,
           isAdmin: result.isAdmin,
@@ -37,9 +39,9 @@ const DoubleSliderAuth = () => {
 
         localStorage.setItem("user", JSON.stringify(userData));
         localStorage.setItem("employeeId", result.employeeId);
-        
+
         console.log("isAdmin received from API:", result.isAdmin); // Debugging line
-        
+
         const isAdmin = Boolean(result.isAdmin); // Ensure correct boolean conversion
         localStorage.setItem("admin", JSON.stringify(isAdmin));
 
@@ -47,10 +49,10 @@ const DoubleSliderAuth = () => {
       } else {
         alert("Invalid email or password");
       }
-  } catch (error) {
-    console.error("Login error:", error);
-    alert("Something went wrong. Please try again.");
-  }
+    } catch (error) {
+      console.error("Login error:", error);
+      alert("Something went wrong. Please try again.");
+    }
   };
 
   const handleSignup = async (e) => {
@@ -63,7 +65,7 @@ const DoubleSliderAuth = () => {
     try {
       const response = await fetch(`${API_BASE_URL}/register`, {
         method: "POST",
-        body: JSON.stringify({ name, email, password, isAdmin }),
+        body: JSON.stringify({ name, lastName, email, password, isAdmin }),
         headers: { "Content-Type": "application/json" },
       });
 
@@ -82,57 +84,124 @@ const DoubleSliderAuth = () => {
 
   return (
     <div className="loginBody">
+      <div className="auth-wrapper">
+        <ParticlesBackground />
+        {/* <Polygonmaskparticle /> */}
 
-    
-    <div className="auth-wrapper">
-      <ParticlesBackground />
-      {/* <Polygonmaskparticle /> */}
-      
-    <div className={`auth-container ${isSignUp ? "right-panel-active" : ""}`} id="auth-container">
-      {/* Signup Form */}
-      <div className="form-container sign-up-container">
-        <form onSubmit={handleSignup}>
-          <img src="/saasoa_logo_b.png" alt="Company Logo" className="logo" />
-          <h1>Register</h1>
-          <input type="text" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} required />
-          <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-          <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-          <label>
-            <input type="checkbox" checked={isAdmin} onChange={() => setIsAdmin(!isAdmin)} /> Register as Admin
-          </label>
-          {isAdmin && <input type="password" placeholder="Admin Code" value={adminCode} onChange={(e) => setAdminCode(e.target.value)} required />}
-          <button className="authButton" type="submit">Sign Up</button>
-        </form>
-      </div>
+        <div
+          className={`auth-container ${isSignUp ? "right-panel-active" : ""}`}
+          id="auth-container"
+        >
+          {/* Signup Form */}
+          <div className="form-container sign-up-container">
+            <form onSubmit={handleSignup}>
+              <img
+                src="/saasoa_logo_b.png"
+                alt="Company Logo"
+                className="logo"
+              />
+              <h1>Register</h1>
+              <input
+                type="text"
+                placeholder="Name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+              <input
+                type="text"
+                placeholder="Last Name"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+              />
 
-      {/* Login Form */}
-      <div className="form-container sign-in-container">
-        <form onSubmit={handleLogin}>
-          <img src="/saasoa_logo_b.png" alt="Company Logo" className="logo" />
-          <h1>Sign in</h1>
-          <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-          <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-          <button className="authButton" type="submit">Sign In</button>
-        </form>
-      </div>
-
-      {/* Overlay */}
-      <div className="overlay-container">
-        <div className="overlay">
-          <div className="overlay-panel overlay-left">
-            <h1>Welcome Back!</h1>
-            <p>To stay connected, please login</p>
-            <button className="ghost" onClick={toggleForm}>Sign In</button>
+              <input
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+              <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <label>
+                <input
+                  type="checkbox"
+                  checked={isAdmin}
+                  onChange={() => setIsAdmin(!isAdmin)}
+                />{" "}
+                Register as Admin
+              </label>
+              {isAdmin && (
+                <input
+                  type="password"
+                  placeholder="Admin Code"
+                  value={adminCode}
+                  onChange={(e) => setAdminCode(e.target.value)}
+                  required
+                />
+              )}
+              <button className="authButton" type="submit">
+                Sign Up
+              </button>
+            </form>
           </div>
-          <div className="overlay-panel overlay-right">
-            <h1>Hello!</h1>
-            <p>Enter your details and start Tracking Your Activities</p>
-            <button className="ghost" onClick={toggleForm}>Sign Up</button>
+
+          {/* Login Form */}
+          <div className="form-container sign-in-container">
+            <form onSubmit={handleLogin}>
+              <img
+                src="/saasoa_logo_b.png"
+                alt="Company Logo"
+                className="logo"
+              />
+              <h1>Sign in</h1>
+              <input
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+              <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <button className="authButton" type="submit">
+                Sign In
+              </button>
+            </form>
+          </div>
+
+          {/* Overlay */}
+          <div className="overlay-container">
+            <div className="overlay">
+              <div className="overlay-panel overlay-left">
+                <h1>Welcome Back!</h1>
+                <p>To stay connected, please login</p>
+                <button className="ghost" onClick={toggleForm}>
+                  Sign In
+                </button>
+              </div>
+              <div className="overlay-panel overlay-right">
+                <h1>Hello!</h1>
+                <p>Enter your details and start Tracking Your Activities</p>
+                <button className="ghost" onClick={toggleForm}>
+                  Sign Up
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-    </div>
     </div>
   );
 };

@@ -23,17 +23,16 @@ function App() {
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
-  
+
     if (storedUser) {
-      setUser({ 
-        isAuthenticated: true, 
-        isAdmin: storedUser.isAdmin === true // Ensure boolean check
+      setUser({
+        isAuthenticated: true,
+        isAdmin: storedUser.isAdmin === true, // Ensure boolean check
       });
     } else {
       setUser({ isAuthenticated: false, isAdmin: false });
     }
   }, []);
-  
 
   if (user === null) {
     return <div>Loading...</div>;
@@ -60,7 +59,10 @@ function App() {
             {/* <Route path="/admin/employees" element={<EmployeeManagement />} /> */}
             <Route path="/admin/leaves" element={<ManageLeaves />} />
             <Route path="/admin/timelogger" element={<AdminTimelogger />} />
-            <Route path="/admin/employee-acitivities" element={<EmployeeAcitivities />} />
+            <Route
+              path="/admin/employee-acitivities"
+              element={<EmployeeAcitivities />}
+            />
           </Route>
 
           {/* Public Routes - Only for non-logged-in users */}
@@ -68,7 +70,11 @@ function App() {
             path="/login"
             element={
               user.isAuthenticated ? (
-                user.isAdmin ? <Navigate to="/admin" replace /> : <Navigate to="/" replace />
+                user.isAdmin ? (
+                  <Navigate to="/admin" replace />
+                ) : (
+                  <Navigate to="/" replace />
+                )
               ) : (
                 <DoubleSliderAuth />
               )
@@ -76,7 +82,10 @@ function App() {
           />
 
           {/* Catch-All Route - Redirect unknown paths */}
-          <Route path="*" element={<Navigate to={user.isAdmin ? "/admin" : "/"} />} />
+          <Route
+            path="*"
+            element={<Navigate to={user.isAdmin ? "/admin" : "/"} />}
+          />
         </Routes>
       </BrowserRouter>
     </div>

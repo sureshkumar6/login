@@ -34,7 +34,6 @@ const AdminTimeLogger = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-
   const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:6060";
 
   useEffect(() => {
@@ -62,7 +61,7 @@ const AdminTimeLogger = () => {
   useEffect(() => {
     setPage(0);
   }, [selectedEmployee, searchDate]);
-  
+
   const fetchLogs = async () => {
     setLoading(true);
     try {
@@ -79,8 +78,8 @@ const AdminTimeLogger = () => {
       }
 
       filteredLogs.sort((a, b) => new Date(b.date) - new Date(a.date));
-  
-      setLogs(filteredLogs); 
+
+      setLogs(filteredLogs);
     } catch (err) {
       setError("Error fetching logs");
       console.error("Error fetching logs:", err);
@@ -88,7 +87,6 @@ const AdminTimeLogger = () => {
       setLoading(false);
     }
   };
-
 
   const logTypeMap = {
     "Login Time": "loginTime",
@@ -108,7 +106,7 @@ const AdminTimeLogger = () => {
       alert("Please select an employee, date, and log time.");
       return;
     }
-    
+
     if (!logTypeMap[logType]) {
       console.error("Invalid logType received:", logType);
       return;
@@ -140,17 +138,20 @@ const AdminTimeLogger = () => {
     setSelectedDate(selected);
     setSearchDate(selected); // ✅ Update search date for filtering logs
   };
-  
+
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0); // Reset to first page when changing rows per page
   };
-  
-  const paginatedLogs = logs.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+
+  const paginatedLogs = logs.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
+  );
 
   return (
     <div className="adminLogger">
-      <NeatBackground/>
+      <NeatBackground />
       {/* <Typography variant="h4" gutterBottom className="text-xl font-bold mb-4">
         Admin Time Logger
       </Typography> */}
@@ -187,10 +188,7 @@ const AdminTimeLogger = () => {
         {/* Log Type Dropdown */}
         <FormControl fullWidth className="border p-2">
           <InputLabel>Log Type</InputLabel>
-          <Select
-            value={logType}
-            onChange={(e) => setLogType(e.target.value)}
-          >
+          <Select value={logType} onChange={(e) => setLogType(e.target.value)}>
             {Object.keys(logTypeMap).map((type) => (
               <MenuItem key={type} value={type}>
                 {type}
@@ -234,77 +232,104 @@ const AdminTimeLogger = () => {
                 <TableHead className="thead-primary">
                   <TableRow>
                     {[
-                      "Date", "Login", "Dinner Break Start", "Dinner Break End", "Logout",
-                      "Short Break 1 Start", "Short Break 1 End", "Short Break 2 Start", "Short Break 2 End",
-                      "Short Break 3 Start", "Short Break 3 End", "Total Login Hrs", "Break Duration",
-                      "Actual Login Hrs", "Admin Hrs"
+                      "Date",
+                      "Login",
+                      "Dinner Break Start",
+                      "Dinner Break End",
+                      "Logout",
+                      "Short Break 1 Start",
+                      "Short Break 1 End",
+                      "Short Break 2 Start",
+                      "Short Break 2 End",
+                      "Short Break 3 Start",
+                      "Short Break 3 End",
+                      "Total Login Hrs",
+                      "Break Duration",
+                      "Actual Login Hrs",
+                      "Admin Hrs",
                     ].map((header) => (
                       <TableCell key={header}>{header}</TableCell>
                     ))}
                   </TableRow>
                 </TableHead>
                 <TableBody>
-  {paginatedLogs.map((log) => (
-    <React.Fragment key={log._id}>
-      <TableRow>
-        <TableCell>{log.date}</TableCell>
-        <TableCell>{log.loginTime || "-"}</TableCell>
-        <TableCell>{log.dinnerStartTime || "-"}</TableCell>
-        <TableCell>{log.dinnerEndTime || "-"}</TableCell>
-        <TableCell>{log.logoutTime || "-"}</TableCell>
-        <TableCell>{log.shortBreak1Start || "-"}</TableCell>
-        <TableCell>{log.shortBreak1End || "-"}</TableCell>
-        <TableCell>{log.shortBreak2Start || "-"}</TableCell>
-        <TableCell>{log.shortBreak2End || "-"}</TableCell>
-        <TableCell>{log.shortBreak3Start || "-"}</TableCell>
-        <TableCell>{log.shortBreak3End || "-"}</TableCell>
-        <TableCell>{log.totalLoginHours || "-"}</TableCell>
-        <TableCell>{log.breakDuration || "-"}</TableCell>
-        <TableCell>{log.actualLoginHours || "-"}</TableCell>
-        <TableCell>{log.adminLoginHours || "-"}</TableCell>
-      </TableRow>
+                  {paginatedLogs.map((log) => (
+                    <React.Fragment key={log._id}>
+                      <TableRow>
+                        <TableCell>{log.date}</TableCell>
+                        <TableCell>{log.loginTime || "-"}</TableCell>
+                        <TableCell>{log.dinnerStartTime || "-"}</TableCell>
+                        <TableCell>{log.dinnerEndTime || "-"}</TableCell>
+                        <TableCell>{log.logoutTime || "-"}</TableCell>
+                        <TableCell>{log.shortBreak1Start || "-"}</TableCell>
+                        <TableCell>{log.shortBreak1End || "-"}</TableCell>
+                        <TableCell>{log.shortBreak2Start || "-"}</TableCell>
+                        <TableCell>{log.shortBreak2End || "-"}</TableCell>
+                        <TableCell>{log.shortBreak3Start || "-"}</TableCell>
+                        <TableCell>{log.shortBreak3End || "-"}</TableCell>
+                        <TableCell>{log.totalLoginHours || "-"}</TableCell>
+                        <TableCell>{log.breakDuration || "-"}</TableCell>
+                        <TableCell>{log.actualLoginHours || "-"}</TableCell>
+                        <TableCell>{log.adminLoginHours || "-"}</TableCell>
+                      </TableRow>
 
-      {/* ✅ Display Change History Below Each Log Row */}
-      {log.modifications?.length > 0 && (
-        <TableRow>
-          <TableCell colSpan={15} className="bg-gray-100">
-            <Typography variant="subtitle2" gutterBottom>
-              <strong>Change History:</strong>
-            </Typography>
-            <ul className="text-sm list-disc pl-4">
-              {log.modifications.map((mod, index) => (
-                <li key={index}>
-                  🔹 <strong>{mod.field}</strong>: 
-                  <span style={{ color: "red", marginLeft: "5px" }}>⛔ {mod.oldTime} </span> → 
-                  <span style={{ color: "green", marginLeft: "5px" }}>✅ {mod.newTime} </span> 
-                  <span style={{ color: "gray", fontSize: "12px", marginLeft: "5px" }}>
-                    (Modified on {new Date(mod.modifiedAt).toLocaleString()})
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </TableCell>
-        </TableRow>
-      )}
-    </React.Fragment>
-  ))}
-</TableBody>
-
-{/* ✅ Add Pagination Below the Table */}
-<TablePagination
-  rowsPerPageOptions={[10, 25, 50]}
-  component="tfoot"
-  count={logs.length}
-  rowsPerPage={rowsPerPage}
-  page={page}
-  onPageChange={handleChangePage}
-  onRowsPerPageChange={handleChangeRowsPerPage}
-  className="table-pagination"
-/>
-
-              
+                      {/* ✅ Display Change History Below Each Log Row */}
+                      {log.modifications?.length > 0 && (
+                        <TableRow>
+                          <TableCell colSpan={15} className="bg-gray-100">
+                            <Typography variant="subtitle2" gutterBottom>
+                              <strong>Change History:</strong>
+                            </Typography>
+                            <ul className="text-sm list-disc pl-4">
+                              {log.modifications.map((mod, index) => (
+                                <li key={index}>
+                                  🔹 <strong>{mod.field}</strong>:
+                                  <span
+                                    style={{ color: "red", marginLeft: "5px" }}
+                                  >
+                                    ⛔ {mod.oldTime}{" "}
+                                  </span>{" "}
+                                  →
+                                  <span
+                                    style={{
+                                      color: "green",
+                                      marginLeft: "5px",
+                                    }}
+                                  >
+                                    ✅ {mod.newTime}{" "}
+                                  </span>
+                                  <span
+                                    style={{
+                                      color: "gray",
+                                      fontSize: "12px",
+                                      marginLeft: "5px",
+                                    }}
+                                  >
+                                    (Modified on{" "}
+                                    {new Date(mod.modifiedAt).toLocaleString()})
+                                  </span>
+                                </li>
+                              ))}
+                            </ul>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </React.Fragment>
+                  ))}
+                </TableBody>
               </Table>
             </TableContainer>
+            {/* ✅ Add Pagination Below the Table */}
+            <TablePagination
+              rowsPerPageOptions={[10, 25, 50]}
+              component="tfoot"
+              count={logs.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+              className="table-pagination"
+            />
           </Paper>
         </>
       )}

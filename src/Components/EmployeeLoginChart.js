@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Box, Typography, FormControl, Select, MenuItem, InputLabel } from "@mui/material";
+import {
+  Box,
+  Typography,
+  FormControl,
+  Select,
+  MenuItem,
+  InputLabel,
+} from "@mui/material";
 import {
   BarChart,
   Bar,
@@ -29,7 +36,10 @@ const EmployeeLoginChart = ({ selectedEmployee, isAdmin }) => {
           setEmployees(employeeList);
 
           // Set default employee if none selected
-          if (!employeeList.includes(selectedEmployee) && employeeList.length > 0) {
+          if (
+            !employeeList.includes(selectedEmployee) &&
+            employeeList.length > 0
+          ) {
             setCurrentEmployee(employeeList[0]);
           }
         } catch (error) {
@@ -47,7 +57,9 @@ const EmployeeLoginChart = ({ selectedEmployee, isAdmin }) => {
       try {
         setLoading(true);
         console.log("Fetching data for:", currentEmployee);
-        const response = await axios.get(`${API_BASE_URL}/logs?employeeName=${currentEmployee}`);
+        const response = await axios.get(
+          `${API_BASE_URL}/logs?employeeName=${currentEmployee}`
+        );
         const logs = response.data;
 
         if (!logs || logs.length === 0) {
@@ -88,16 +100,23 @@ const EmployeeLoginChart = ({ selectedEmployee, isAdmin }) => {
       {isAdmin && (
         <FormControl fullWidth margin="normal">
           <InputLabel>Select Employee</InputLabel>
-          <Select value={currentEmployee} onChange={(e) => setCurrentEmployee(e.target.value)}>
+          <Select
+            value={currentEmployee}
+            onChange={(e) => setCurrentEmployee(e.target.value)}
+          >
             {employees.map((employee) => (
               <MenuItem key={employee} value={employee}>
                 {employee}
               </MenuItem>
             ))}
           </Select>
-          <Typography variant="subtitle1" align="center" sx={{ mt: 2, fontWeight: "bold" }}>
-        Showing data for: {currentEmployee}
-      </Typography>
+          {/* <Typography
+            variant="subtitle1"
+            align="center"
+            sx={{ mt: 2, fontWeight: "bold" }}
+          >
+            Showing data for: {currentEmployee}
+          </Typography> */}
         </FormControl>
       )}
 
@@ -110,12 +129,22 @@ const EmployeeLoginChart = ({ selectedEmployee, isAdmin }) => {
         <Typography align="center">Loading chart...</Typography>
       ) : chartData.length > 0 ? (
         <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+          <BarChart
+            data={chartData}
+            margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+            barCategoryGap={20}
+            barGap={4}
+          >
             <XAxis dataKey="date" />
             <YAxis />
             <Tooltip />
             <Legend />
-            <Bar dataKey="hours" fill="#007bff" name="Login Hours" />
+            <Bar
+              dataKey="hours"
+              fill="#007bff"
+              name="Login Hours"
+              barSize={40}
+            />
           </BarChart>
         </ResponsiveContainer>
       ) : (

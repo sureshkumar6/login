@@ -1,70 +1,218 @@
 /* Navbar.css */
-  .navbar {
-    height: 60px;
+.navbar {
+  height: 60px;
   background-color: #333;
   position: relative;
-  }
+}
 
-  .navContainer{
-    /* max-width: 1100px; */
-    width: -webkit-fill-available;
-    padding: 0 15px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 100%;
-  }
+.navContainer {
+  /* max-width: 1100px; */
+  width: -webkit-fill-available;
+  padding: 0 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+}
 
-  .navbar-logo {
-    display: flex;
-    align-items: center;
-  }
+.navbar-logo {
+  display: flex;
+  align-items: center;
+}
 
-  .logo {
-    /* height: 50px;  */
-    cursor: pointer;
-  }
-  .logout-button{
-    padding: 0;
-    border: none;
-    background: none;
-    cursor: pointer;
-    color: #ffffff;
-    font-size: 16px;
-    font-weight: 400;
-  }
+.logo {
+  /* height: 50px;  */
+  cursor: pointer;
+}
+.logout-button {
+  display: flex;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 400;
+  padding: 6px 12px;
+  border-radius: 4px;
+  background-color: transparent;
+  color: #ffffff;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+.logout-button:hover {
+  background-color: #ffebcc;
+  color: #cc6600;
+}
+.menu-icon {
+  display: none;
+  cursor: pointer;
+  font-size: 24px;
+  color: white;
+}
 
-  .menu-icon {
-    display: none;
-    cursor: pointer;
-    font-size: 24px;
-    color: white;
-  }
-  
-  .nav-elements {
-    display: flex;
-    justify-content: flex-end;
-  }
-  
-  .nav-elements ul {
-    list-style: none;
-    display: flex;
-    gap: 15px;
-    justify-content: space-between;
-    list-style-type: none;
-  }
+.nav-elements {
+  display: flex;
+  justify-content: flex-end;
+}
 
+.nav-elements ul {
+  list-style: none;
+  display: flex;
+  gap: 15px;
+  justify-content: space-between;
+  list-style-type: none;
+  align-items: center;
+}
+
+.nav-elements ul li:not(:last-child) {
+  margin-right: 15px;
+}
+
+.nav-elements ul a {
+  position: relative;
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+  font-weight: 400;
+  color: #ffffff;
+  text-decoration: none;
+  padding: 8px 12px;
+  transition: color 0.3s ease;
+}
+
+.nav-elements ul a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 0%;
+  height: 2px;
+  background-color: #007bff;
+  transition: width 0.3s ease;
+}
+
+.nav-elements ul a:hover {
+  color: #007bff;
+}
+
+.nav-elements ul a:hover::after {
+  width: 100%;
+}
+.nav-elements ul a.active {
+  color: #007bff;
+  font-weight: 500;
+  position: relative;
+}
+.nav-elements ul a.active::after {
+  content: "";
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: #0064cf;
+}
+
+.nav-elements ul a i,
+.nav-elements ul a svg {
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+.logout {
+  display: flex;
+  font-size: 16px;
+  font-weight: 400;
+  color: #ffffff;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.3s ease-in-out;
+}
+.logoutIcon {
+  display: flex;
+  align-items: center;
+  margin-right: 8px;
+}
+.nav-elements ul a svg {
+  margin-right: 8px !important;
+  vertical-align: middle;
+}
+
+.logout:hover {
+  color: #007bff; /* Match the active link color */
+}
+
+@media (max-width: 768px) {
   .nav-elements ul li:not(:last-child) {
-    margin-right: 15px;
+    margin-right: 30px;
+  }
+}
+
+@media (max-width: 1210px) {
+  .menu-icon {
+    display: block;
+    cursor: pointer;
+    font-size: 28px;
+    z-index: 1001; /* Ensure it's above other elements */
   }
 
-  .nav-elements ul a {
-    font-size: 16px;
-    font-weight: 400;
+  .nav-elements {
+    position: fixed; /* Fixed so it doesn't get covered */
+    right: 0;
+    top: 60px;
+    background-color: #222; /* Darker shade for better contrast */
+    width: 270px;
+    height: calc(100vh - 60px);
+    display: none; /* Hide by default */
+    flex-direction: column;
+    align-items: start;
+    padding: 20px;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease-in;
+    z-index: 1000; /* Ensures menu stays above content */
+  }
+
+  .nav-elements.active {
+    display: flex; /* Show menu when active */
+    justify-content: flex-start;
+  }
+
+  .nav-elements ul {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    margin: 0;
+  }
+
+  .nav-elements ul li {
+    width: 100%;
+    padding: 12px 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .nav-elements ul li:last-child {
+    border-bottom: none;
+  }
+
+  .nav-elements ul a,
+  .logout {
+    font-size: 18px;
+    font-weight: 500;
     color: #ffffff;
     text-decoration: none;
+    display: block;
+    padding: 10px;
+    width: 100%;
   }
-  
+
+  .nav-elements ul a:hover,
+  .logout:hover {
+    background-color: #e6f0ff; /* soft blue */
+    color: #007bff;
+    border-radius: 4px;
+  }
+
   .nav-elements ul a.active {
     color: #007bff;
     font-weight: 500;
@@ -77,135 +225,20 @@
     left: 0;
     width: 100%;
     height: 2px;
-    background-color: #0064cf;
+    background-color: #007bff;
   }
-  .logout {
-    font-size: 16px;
-    font-weight: 400;
-    color: #ffffff;
-    text-decoration: none;
-    cursor: pointer;
-    transition: color 0.3s ease-in-out;
+
+  /* Ensure Navbar Stays on Top */
+  .navbar {
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1002; /* Higher than menu */
   }
-  
-  .logout:hover {
-    color: #007bff; /* Match the active link color */
+
+  /* Ensure content does not go under the navbar */
+  body {
+    padding-top: 60px;
   }
-  
-  
-  @media (max-width: 768px) {
-    .nav-elements ul li:not(:last-child) {
-      margin-right: 30px;
-    }
-  }
-  
-  /* @media (max-width: 600px) {
-    .menu-icon {
-      display: block;
-      cursor: pointer;
-    }
-  
-    .nav-elements {
-      position: absolute;
-      right: 0;
-      top: 60px;
-      background-color: #fef7e5;
-      width: 0px;
-      height: calc(100vh - 60px);
-      transition: all 0.3s ease-in;
-      overflow: hidden;
-    }
-  
-    .nav-elements.active {
-      width: 270px;
-    }
-  
-    .nav-elements ul {
-      display: flex;
-      flex-direction: column;
-    }
-  
-    .nav-elements ul li {
-      margin-right: unset;
-      margin-top: 22px;
-    }
-  } */
-  @media (max-width: 600px) {
-    .menu-icon {
-      display: block;
-      cursor: pointer;
-      font-size: 28px;
-      z-index: 1001; /* Ensure it's above other elements */
-    }
-  
-    .nav-elements {
-      position: fixed; /* Fixed so it doesn't get covered */
-      right: 0;
-      top: 60px;
-      background-color: #222; /* Darker shade for better contrast */
-      width: 270px;
-      height: calc(100vh - 60px);
-      display: none; /* Hide by default */
-      flex-direction: column;
-      align-items: start;
-      padding: 20px;
-      box-shadow: -2px 0 5px rgba(0, 0, 0, 0.3);
-      transition: all 0.3s ease-in;
-      z-index: 1000; /* Ensures menu stays above content */
-    }
-  
-    .nav-elements.active {
-      display: flex; /* Show menu when active */
-      justify-content: flex-start;
-    }
-  
-    .nav-elements ul {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      padding: 0;
-      margin: 0;
-    }
-  
-    .nav-elements ul li {
-      width: 100%;
-      padding: 12px 10px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    }
-  
-    .nav-elements ul li:last-child {
-      border-bottom: none;
-    }
-  
-    .nav-elements ul a,
-    .logout {
-      font-size: 18px;
-      font-weight: 500;
-      color: #ffffff;
-      text-decoration: none;
-      display: block;
-      padding: 10px;
-      width: 100%;
-    }
-  
-    .nav-elements ul a:hover,
-    .logout:hover {
-      background-color: #444;
-      color: #ffcc00;
-    }
-  
-    /* Ensure Navbar Stays on Top */
-    .navbar {
-      position: fixed;
-      width: 100%;
-      top: 0;
-      left: 0;
-      z-index: 1002; /* Higher than menu */
-    }
-  
-    /* Ensure content does not go under the navbar */
-    body {
-      padding-top: 60px;
-    }
-  }
-  
+}

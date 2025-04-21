@@ -11,7 +11,7 @@ const Salary = () => {
     leaves: 0,
     avgHoursWorked: 0,
   });
-
+  const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:6060";
   useEffect(() => {
     const fetchSalaryData = async () => {
       const storedUser = JSON.parse(localStorage.getItem("user"));

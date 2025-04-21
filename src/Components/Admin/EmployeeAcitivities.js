@@ -1,8 +1,25 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { motion } from "framer-motion";
 import NeatBackground from "../NeatBackground.js";
-import { 
-  TextField, Box, Typography, List, ListItem, ListItemText, Avatar, Paper, FormControl, MenuItem, Select, InputLabel, IconButton, Pagination
+import {
+  TextField,
+  Box,
+  Typography,
+  List,
+  ListItem,
+  ListItemText,
+  Avatar,
+  Paper,
+  FormControl,
+  MenuItem,
+  Select,
+  InputLabel,
+  IconButton,
+  Pagination,
+  CheckCircle,
+  HourglassEmpty,
+  Cancel,
 } from "@mui/material";
 import "./EmployeeAcitivities.css";
 
@@ -15,6 +32,7 @@ const EmployeeActivities = () => {
   const [selectedDate, setSelectedDate] = useState(""); // State for selected date
   const [page, setPage] = useState(1); // current page
   const [itemsPerPage, setItemsPerPage] = useState(5); // number of activities per page
+  const [expandedGroups, setExpandedGroups] = useState({});
 
   useEffect(() => {
     fetchActivities();
@@ -23,23 +41,40 @@ const EmployeeActivities = () => {
 
   const fetchActivities = async () => {
     try {
-      const url = selectedEmployee === "All" 
-        ? `${API_BASE_URL}/daily-activity`
-        : `${API_BASE_URL}/daily-activity?email=${selectedEmployee}`;
+      const url =
+        selectedEmployee === "All"
+          ? `${API_BASE_URL}/daily-activity`
+          : `${API_BASE_URL}/daily-activity?email=${selectedEmployee}`;
 
       const response = await axios.get(url);
       const groupedActivities = groupByDate(response.data);
-      console.log("Grouped Activities: ", groupedActivities);
 
       // If a specific date is selected, filter activities by date
       if (selectedDate) {
-        const filteredActivities = Object.keys(groupedActivities).reduce((acc, date) => {
-          if (date === selectedDate) acc[date] = groupedActivities[date];
-          return acc;
-        }, {});
+        const filteredActivities = Object.keys(groupedActivities).reduce(
+          (acc, date) => {
+            if (date === selectedDate) acc[date] = groupedActivities[date];
+            return acc;
+          },
+          {}
+        );
         setActivities(filteredActivities);
       } else {
-        setActivities(groupedActivities);
+        // Sort dates (most recent first)
+        const sortedKeys = Object.keys(groupedActivities).sort(
+          (a, b) => new Date(b) - new Date(a)
+        );
+
+        // Build new sorted activity object
+        const sortedActivities = {};
+        sortedKeys.forEach((date) => {
+          sortedActivities[date] = groupedActivities[date];
+        });
+
+        setActivities(sortedActivities);
+
+        // Automatically expand only the most recent date
+        setExpandedGroups({ [sortedKeys[0]]: true });
       }
     } catch (error) {
       console.error("Error fetching activities:", error);
@@ -53,10 +88,13 @@ const EmployeeActivities = () => {
       const uniqueEmployees = [];
       const employeeMap = new Map();
 
-      activities.forEach(activity => {
+      activities.forEach((activity) => {
         if (!employeeMap.has(activity.email)) {
           employeeMap.set(activity.email, activity.employeeName);
-          uniqueEmployees.push({ email: activity.email, name: activity.employeeName });
+          uniqueEmployees.push({
+            email: activity.email,
+            name: activity.employeeName,
+          });
         }
       });
 
@@ -80,14 +118,14 @@ const EmployeeActivities = () => {
     return data.reduce((acc, activity) => {
       // Format the date to exclude time for accurate comparison
       const activityDate = new Date(activity.date);
-      const formattedDate = activityDate.toISOString().split('T')[0];  // yyyy-mm-dd format
-      console.log("Activity Date: ", formattedDate);  // Log to check
+      const formattedDate = activityDate.toISOString().split("T")[0]; // yyyy-mm-dd format
+      console.log("Activity Date: ", formattedDate); // Log to check
 
       if (!acc[formattedDate]) acc[formattedDate] = [];
       acc[formattedDate].push(activity);
       return acc;
     }, {});
-};
+  };
 
   const getInitials = (name) => {
     return name
@@ -98,22 +136,21 @@ const EmployeeActivities = () => {
 
   const calculateTimeSpent = (startTime, endTime) => {
     if (!endTime) return "Ongoing";
-  
+
     const start = new Date(`1970-01-01T${startTime}`);
     const end = new Date(`1970-01-01T${endTime}`);
-    
+
     // Check if endTime is earlier than startTime (e.g., might be a misentry or incorrect data)
     if (end < start) {
       return "Invalid Time"; // Or handle it as you see fit
     }
-  
+
     const diffMs = end - start;
     const hours = Math.floor(diffMs / (1000 * 60 * 60));
     const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-  
+
     return `${hours}h ${minutes}m`;
   };
-  
 
   // Function to paginate activities (grouped by date)
   const paginateActivities = () => {
@@ -135,37 +172,60 @@ const EmployeeActivities = () => {
     setSelectedDate(event.target.value); // Update selected date
   };
 
+  const toggleGroup = (date) => {
+    setExpandedGroups((prev) => ({
+      ...prev,
+      [date]: !prev[date],
+    }));
+  };
+
   return (
     <Box className="daily-activities-container">
-      <NeatBackground/>
-      {/* <Typography variant="h5" align="center" className="title">
-        Daily Activities
-      </Typography> */}
+      <NeatBackground />
 
-      <div className= "dailyFilterContainer">
-        <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, marginBottom: 2 }}>
-          <IconButton 
-            onClick={() => setSelectedEmployee("All")} 
-            sx={{ width: 40, height: 40, backgroundColor: 'lightgrey', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+      <div className="dailyFilterContainer">
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            gap: 2,
+            marginBottom: 2,
+          }}
+        >
+          <IconButton
+            onClick={() => setSelectedEmployee("All")}
+            sx={{
+              width: 40,
+              height: 40,
+              backgroundColor: "lightgrey",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
           >
-            <Typography variant="body1" sx={{ fontWeight: 'bold' }}>All</Typography>
+            <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+              All
+            </Typography>
           </IconButton>
 
           {employees.map((employee) => (
-            <IconButton 
-              key={employee.email} 
-              onClick={() => setSelectedEmployee(employee.email)} 
-              sx={{ 
-                width: 40, 
-                height: 40, 
+            <IconButton
+              key={employee.email}
+              onClick={() => setSelectedEmployee(employee.email)}
+              sx={{
+                width: 40,
+                height: 40,
                 backgroundColor: getColorFromString(employee.name),
-                display: 'flex', 
-                justifyContent: 'center', 
-                alignItems: 'center',
-                borderRadius: '50%' 
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                borderRadius: "50%",
               }}
             >
-              <Typography variant="body1" sx={{ fontWeight: 'bold', color: 'black' }}>
+              <Typography
+                variant="body1"
+                sx={{ fontWeight: "bold", color: "black" }}
+              >
                 {getInitials(employee.name)}
               </Typography>
             </IconButton>
@@ -188,44 +248,164 @@ const EmployeeActivities = () => {
         </FormControl>
 
         {/* Add Date Filter */}
-        <Box sx={{ display: 'flex', justifyContent: 'center', my: 2, width:"20%"}}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            my: 2,
+            width: "20%",
+          }}
+        >
           <TextField
             type="date"
             value={selectedDate}
             onChange={handleDateChange}
-            style={{ padding: '6px 12px', fontSize: '16px' }}
+            style={{ padding: "6px 12px", fontSize: "16px" }}
           />
         </Box>
       </div>
 
-    <Box>
-  {Object.keys(activities).map((date, index) => (
-    <Paper key={date} className="date-section">
-      {/* Render date header only once */}
-      <Typography variant="h6" className="date-header">
-        {date}
-      </Typography>
-      <List>
-        {/* Render activities under the date */}
-        {activities[date].map((activity) => (
-          <ListItem key={activity._id} className="activity-item">
-            <Avatar className="avatar" sx={{ backgroundColor: getColorFromString(activity.employeeName) }}>
-              {getInitials(activity.employeeName)}
-            </Avatar>
-            <ListItemText
-              primary={`${activity.work} - ${activity.subWorkType}`}
-              secondary={`Time: ${activity.startTime} - ${activity.endTime || "Ongoing"} | Duration: ${calculateTimeSpent(activity.startTime, activity.endTime)}`}
-            />
-          </ListItem>
-        ))}
-      </List>
-    </Paper>
-  ))}
-</Box>
+      <Box className="employeeActivityContainer">
+        <Typography className="timeline-heading" variant="h5">
+          Activity Timeline
+        </Typography>
+        <hr className="timeline-divider" />
+        {Object.keys(activities).map((date) => (
+          <Box key={date} className="activity-group mb-6">
+            {/* Header */}
+            <Box
+              className="activity-group-header"
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                backgroundColor: "#f9fafb",
+                padding: "12px",
+                borderRadius: "8px",
+                marginBottom: "12px",
+                cursor: "pointer",
+              }}
+              onClick={() => toggleGroup(date)}
+            >
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Box
+                  sx={{
+                    width: 32,
+                    height: 32,
+                    backgroundColor: "#e0e7ff",
+                    color: "#4f46e5",
+                    borderRadius: "50%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    marginRight: "12px",
+                    fontSize: "16px",
+                    fontWeight: "bold",
+                  }}
+                >
+                  📅
+                </Box>
+                <Typography variant="subtitle1" fontWeight="bold">
+                  {new Date(date).toLocaleDateString("en-US", {
+                    weekday: "long",
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </Typography>
+              </Box>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Typography variant="body2" color="gray">
+                  {activities[date].length} activities
+                </Typography>
+                <Typography
+                  sx={{
+                    transform: expandedGroups[date]
+                      ? "rotate(180deg)"
+                      : "rotate(0deg)",
+                  }}
+                >
+                  ▼
+                </Typography>
+              </Box>
+            </Box>
 
+            {/* Activities List */}
+            {expandedGroups[date] &&
+              activities[date].map((activity) => (
+                <Box
+                  key={activity._id}
+                  className="activity-item"
+                  sx={{
+                    padding: "16px",
+                    borderBottom: "1px solid #f3f4f6",
+                    display: "flex",
+                    alignItems: "start",
+                  }}
+                >
+                  <Box
+                    className="avatar"
+                    sx={{
+                      marginRight: "16px",
+                      width: "40px",
+                      height: "40px",
+                      backgroundColor: getColorFromString(
+                        activity.employeeName
+                      ),
+                      color: "#fff",
+                      borderRadius: "50%",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {getInitials(activity.employeeName)}
+                  </Box>
+                  <Box sx={{ flex: 1 }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: { xs: "column", sm: "row" },
+                        justifyContent: "space-between",
+                        alignItems: { sm: "center" },
+                        marginBottom: "8px",
+                      }}
+                    >
+                      <Typography fontWeight="bold">{activity.work}</Typography>
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
+                        <Typography className="time-badge" fontSize="14px">
+                          {activity.startTime} - {activity.endTime || "Ongoing"}
+                        </Typography>
+                      </Box>
+                    </Box>
+                    <Typography
+                      color="text.secondary"
+                      fontSize="14px"
+                      marginBottom={1}
+                    >
+                      {activity.work} - {activity.subWorkType}
+                    </Typography>
+                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+                      <span className="badge badge-primary">
+                        Duration:{" "}
+                        {calculateTimeSpent(
+                          activity.startTime,
+                          activity.endTime
+                        )}
+                      </span>
+                    </Box>
+                  </Box>
+                </Box>
+              ))}
+          </Box>
+        ))}
+      </Box>
 
       {/* Pagination Component */}
-      <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 2 }}>
+      <Box sx={{ display: "flex", justifyContent: "center", marginTop: 2 }}>
         <Pagination
           count={Math.ceil(Object.keys(activities).length / itemsPerPage)} // Total pages based on items per page
           page={page}
